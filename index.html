@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trình Chuyển Đổi File Đa Năng Chuyên Nghiệp</title>
-    <!-- Tải các thư viện xử lý qua CDN -->
+    <!-- Tải thư viện xử lý PDF và PowerPoint qua CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/npm/docx@8.5.0/build/index.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body {
@@ -192,7 +191,7 @@
                 fileInput.accept = ".pdf";
                 uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'pdf-to-word') {
-                subDesc.textContent = "Chuyển PDF sang Word (.docx) bằng cách nhúng từng trang thành ảnh gốc (Giữ nguyên 100% không vỡ chữ/công thức).";
+                subDesc.textContent = "Chuyển PDF sang Word (.doc) bằng cách nhúng từng trang ảnh chất lượng cao (Giữ nguyên 100%, không lỗi chữ).";
                 fileInput.accept = ".pdf";
                 uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'doc-to-pdf') {
@@ -235,7 +234,7 @@
             }
         }
 
-        // 1. PDF sang PowerPoint (Slide ngang 16:9, trang PDF fit chiều cao, nằm chính giữa slide)
+        // 1. PDF sang PowerPoint (Slide ngang 16:9, trang PDF fit chiều cao, nằm chính giữa slide, lề trắng 2 bên)
         async function convertPdfToPptx() {
             statusDiv.textContent = "Đang đọc file PDF...";
             const arrayBuffer = await selectedFile.arrayBuffer();
@@ -291,7 +290,7 @@
             finalizeSuccess("Chuyển đổi sang PowerPoint thành công!");
         }
 
-        // 2. PDF sang Word (Render ảnh từng trang đưa vào Word y hệt như bên PPT, giữ nguyên 100%)
+        // 2. PDF sang Word (Đóng gói từng trang thành ảnh sắc nét vào file Word chuẩn)
         async function convertPdfToWord() {
             statusDiv.textContent = "Đang đọc file PDF để chuyển sang Word...";
             const arrayBuffer = await selectedFile.arrayBuffer();
@@ -299,17 +298,12 @@
             const pdfDoc = await loadingTask.promise;
             const numPages = pdfDoc.numPages;
 
-            let docChildren = [];
+            let imagesHtml = "";
 
             for (let i = 1; i <= numPages; i++) {
                 statusDiv.textContent = `Đang xử lý trang ${i} / ${numPages}...`;
                 const page = await pdfDoc.getPage(i);
                 
-                const originalViewport = page.getViewport({ scale: 1.0 });
-                const pdfWidth = originalViewport.width;
-                const pdfHeight = originalViewport.height;
-
-                // Render chất lượng cao
                 const viewport = page.getViewport({ scale: 2.0 });
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
@@ -317,54 +311,24 @@
                 canvas.width = viewport.width;
 
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
-                
-                const dataUrl = canvas.toDataURL('image/png');
-                const blobBin = atob(dataUrl.split(',')[1]);
-                let array = [];
-                for (let j = 0; j < blobBin.length; j++) {
-                    array.push(blobBin.charCodeAt(j));
-                }
-                const imageUint8Array = new Uint8Array(array);
+                const imgData = canvas.toDataURL('image/png');
 
-                // Kích thước chuẩn hiển thị trong trang Word (Chiều rộng 460 pixel để khớp trang A4 gọn gàng)
-                let renderWidth = 460;
-                let renderHeight = (pdfHeight / pdfWidth) * renderWidth;
-
-                // Thêm hình ảnh trang vào file Word, giữa các trang có ngắt trang (PageBreak) để phân trang rõ ràng
-                let paragraphChildren = [
-                    new docx.ImageRun({
-                        data: imageUint8Array,
-                        transformation: {
-                            width: renderWidth,
-                            height: renderHeight,
-                        },
-                    })
-                ];
-
-                // Nếu không phải trang cuối thì thêm ngắt trang để giống hệt tài liệu gốc
-                if (i < numPages) {
-                    paragraphChildren.push(new docx.PageBreak());
-                }
-
-                docChildren.push(
-                    new docx.Paragraph({
-                        children: paragraphChildren,
-                        alignment: docx.AlignmentType.CENTER,
-                        spacing: { after: 200 }
-                    })
-                );
+                imagesHtml += `<div style="text-align: center; page-break-after: always; margin-bottom: 20px;">
+                    <img src="${imgData}" style="max-width: 100%; height: auto; border: 1px solid #ddd;" />
+                </div>`;
             }
 
-            statusDiv.textContent = "Đang xuất file Word (.docx)...";
-            const doc = new docx.Document({
-                sections: [{
-                    properties: {},
-                    children: docChildren,
-                }],
-            });
+            statusDiv.textContent = "Đang tạo file Word...";
+            const htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Export to Word</title></head>
+                <body style='background-color: #ffffff; padding: 20px;'>
+                    ${imagesHtml}
+                </body>
+                </html>`;
 
-            generatedBlob = await docx.Packer.toBlob(doc);
-            outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".docx";
+            generatedBlob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+            outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".doc";
             
             finalizeSuccess("Chuyển đổi sang Word thành công!");
         }
