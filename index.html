@@ -48,6 +48,195 @@
             status.innerHTML = `Đang xử lý file: <b>${fileName}</b>... Thành công! 🎉`;
         }
     </script>
+    <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyển Đổi File Đa Năng</title>
+    <!-- Tải các thư viện hỗ trợ xử lý file qua CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@7.3.0/build/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+        }
+        .container {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        h2 { margin-bottom: 10px; color: #4a5568; font-size: 24px; }
+        p.subtitle { color: #718096; margin-bottom: 25px; font-size: 14px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; font-size: 14px; }
+        select, input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            background: #f7fafc;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        select { border-style: solid; }
+        input[type="file"]:hover, select:focus { border-color: #667eea; }
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
+        }
+        button:hover { opacity: 0.9; }
+        #status {
+            margin-top: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .loading { color: #d69e2e; background: #fefcbf; }
+        .success { color: #38a169; background: #f0fff4; }
+        .error { color: #e53e3e; background: #fff5f5; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>✨ Chuyển Đổi File Chuyên Nghiệp</h2>
+        <p class="subtitle">Hỗ trợ chuyển đổi nhanh chóng file PDF sang Word hoặc PowerPoint ngay trên trình duyệt.</p>
+        
+        <div class="form-group">
+            <label for="conversionType">Chọn kiểu chuyển đổi:</label>
+            <select id="conversionType">
+                <option value="pdf-to-word">📄 PDF sang Word (.docx)</option>
+                <option value="pdf-to-ppt">📊 PDF sang PowerPoint (.pptx)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="fileInput">Tải file PDF lên:</label>
+            <input type="file" id="fileInput" accept=".pdf">
+        </div>
+        
+        <button onclick="handleConversion()">Bắt Đầu Xử Lý</button>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        async function handleConversion() {
+            const fileInput = document.getElementById('fileInput');
+            const type = document.getElementById('conversionType').value;
+            const status = document.getElementById('status');
+
+            if (fileInput.files.length === 0) {
+                status.className = "error";
+                status.innerHTML = "⚠️ Vui lòng chọn một file PDF trước!";
+                return;
+            }
+
+            const file = fileInput.files[0];
+            status.className = "loading";
+            status.innerHTML = "⏳ Đang đọc nội dung file PDF, vui lòng đợi...";
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let extractedText = "";
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const pageText = textContent.items.map(item => item.str).join(" ");
+                    extractedText += `Trang ${i}\n` + pageText + "\n\n";
+                }
+
+                if (type === 'pdf-to-word') {
+                    status.innerHTML = "📝 Đang định dạng và tạo file Word (.docx)...";
+                    createWordFile(extractedText, file.name);
+                } else if (type === 'pdf-to-ppt') {
+                    status.innerHTML = "📊 Đang thiết kế slide PowerPoint (.pptx)...";
+                    createPptFile(extractedText, file.name);
+                }
+
+            } catch (error) {
+                console.error(error);
+                status.className = "error";
+                status.innerHTML = "❌ Có lỗi xảy ra trong quá trình xử lý file!";
+            }
+        }
+
+        async function createWordFile(text, originalName) {
+            const docxContainer = window.docx;
+            const doc = new docxContainer.Document({
+                sections: [{
+                    properties: {},
+                    children: text.split('\n').map(line => new docxContainer.Paragraph({
+                        children: [new docxContainer.TextRun(line)]
+                    }))
+                }]
+            });
+
+            const blob = await docxContainer.Packer.toBlob(doc);
+            downloadBlob(blob, originalName.replace(/\.[^/.]+$/, "") + ".docx");
+            
+            const status = document.getElementById('status');
+            status.className = "success";
+            status.innerHTML = "🎉 Chuyển đổi sang Word thành công! File đang tải xuống.";
+        }
+
+        function createPptFile(text, originalName) {
+            let pptx = new PptxGenJS();
+            let paragraphs = text.split('\n\n');
+
+            paragraphs.forEach(para => {
+                if (para.trim() !== "") {
+                    let slide = pptx.addSlide();
+                    slide.addText(para, { x: 0.5, y: 0.5, w: '90%', h: '85%', fontSize: 18, color: '363636' });
+                }
+            });
+
+            pptx.writeFile({ fileName: originalName.replace(/\.[^/.]+$/, "") + ".pptx" }).then(() => {
+                const status = document.getElementById('status');
+                status.className = "success";
+                status.innerHTML = "🎉 Chuyển đổi sang PowerPoint thành công! File đang tải xuống.";
+            });
+        }
+
+        function downloadBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
 
 </body>
 </html>
