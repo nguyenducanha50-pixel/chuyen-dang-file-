@@ -8,3 +8,46 @@
     <h1>Xin chào! Trang web của tôi đã hoạt động 🚀</h1>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chuyển Đổi Dạng File Nhanh</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; }
+        .container { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
+        input, button { margin: 15px 0; padding: 10px; font-size: 16px; }
+        button { background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🔄 Trang Web Chuyển Đổi Dạng File</h2>
+        <p>Chọn file của bạn để bắt đầu xử lý:</p>
+        
+        <input type="file" id="fileInput"><br>
+        <button onclick="convertFile()">Chuyển Đổi Ngay</button>
+        
+        <p id="status" style="color: green; font-weight: bold;"></p>
+    </div>
+
+    <script>
+        function convertFile() {
+            const fileInput = document.getElementById('fileInput');
+            const status = document.getElementById('status');
+            
+            if (fileInput.files.length === 0) {
+                alert("Vui lòng chọn một file trước!");
+                return;
+            }
+            
+            const fileName = fileInput.files[0].name;
+            status.innerHTML = `Đang xử lý file: <b>${fileName}</b>... Thành công! 🎉`;
+        }
+    </script>
+
+</body>
+</html>
