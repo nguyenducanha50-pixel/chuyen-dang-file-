@@ -187,7 +187,7 @@
             event.target.classList.add('active');
 
             if (mode === 'pdf-to-ppt') {
-                subDesc.textContent = "Chuyển từng trang PDF thành ảnh sắc nét nhúng vào PowerPoint (Giữ nguyên chuẩn tỷ lệ A4, không bị méo hình).";
+                subDesc.textContent = "Chuyển từng trang PDF thành slide dạng dọc (Portrait) chuẩn A4, chữ to rõ nét, không bị co ép.";
                 fileInput.accept = ".pdf";
                 uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'pdf-to-word') {
@@ -234,7 +234,7 @@
             }
         }
 
-        // 1. PDF sang PowerPoint (Tự động cân đối tỷ lệ chuẩn A4, không bị bè ngang)
+        // 1. PDF sang PowerPoint (Thiết lập Slide khổ dọc chuẩn A4, đầy đủ dung lượng từng trang)
         async function convertPdfToPptx() {
             statusDiv.textContent = "Đang đọc file PDF...";
             const arrayBuffer = await selectedFile.arrayBuffer();
@@ -244,22 +244,18 @@
 
             let pptx = new PptxGenJS();
             
-            // Thiết lập khung slide chuẩn 16:9 (Width: 10 inch, Height: 5.625 inch)
-            const slideWidth = 10;
-            const slideHeight = 5.625;
-            pptx.defineLayout({ name: 'CUSTOM_16_9', width: slideWidth, height: slideHeight });
-            pptx.layout = 'CUSTOM_16_9';
+            // Thiết lập slide theo khổ dọc chuẩn tỷ lệ A4 (Width: 7.5 inch, Height: 10 inch)
+            // Giúp toàn bộ dung lượng trang A4 hiển thị to rõ, không bị co ép nhỏ lại
+            const slideWidth = 7.5;
+            const slideHeight = 10.0;
+            pptx.defineLayout({ name: 'CUSTOM_PORTRAIT', width: slideWidth, height: slideHeight });
+            pptx.layout = 'CUSTOM_PORTRAIT';
 
             for (let i = 1; i <= numPages; i++) {
                 statusDiv.textContent = `Đang xử lý trang ${i} / ${numPages}...`;
                 const page = await pdfDoc.getPage(i);
                 
-                // Lấy kích thước gốc của trang PDF
-                const originalViewport = page.getViewport({ scale: 1.0 });
-                const pdfWidth = originalViewport.width;
-                const pdfHeight = originalViewport.height;
-
-                // Render độ nét cao (scale 2.0)
+                // Render chất lượng cao (scale 2.0 để nét căng)
                 const viewport = page.getViewport({ scale: 2.0 });
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
@@ -269,34 +265,16 @@
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
                 const imgData = canvas.toDataURL('image/png');
 
-                // Tính toán tỷ lệ để ảnh fit vào slide mà KHÔNG bị bóp méo hay bè ngang
-                let imgRatio = pdfWidth / pdfHeight;
-                let finalW, finalH, finalX, finalY;
-
-                if (imgRatio > (slideWidth / slideHeight)) {
-                    // Trang PDF dạng ngang rộng
-                    finalW = slideWidth;
-                    finalH = slideWidth / imgRatio;
-                    finalX = 0;
-                    finalY = (slideHeight - finalH) / 2; // Căn giữa theo chiều dọc
-                } else {
-                    // Trang PDF dạng dọc (A4)
-                    finalH = slideHeight;
-                    finalW = slideHeight * imgRatio;
-                    finalX = (slideWidth - finalW) / 2; // Căn giữa theo chiều ngang (tạo khoảng trắng 2 bên cân đối)
-                    finalY = 0;
-                }
-
                 let slide = pptx.addSlide();
-                // Đặt màu nền slide là trắng sạch sẽ
                 slide.background = { color: "FFFFFF" };
                 
+                // Phủ kín trang slide dọc để giữ trọn vẹn toàn bộ dung lượng và kích thước chữ lớn như bản gốc
                 slide.addImage({
                     data: imgData,
-                    x: finalX,
-                    y: finalY,
-                    w: finalW,
-                    h: finalH
+                    x: 0,
+                    y: 0,
+                    w: slideWidth,
+                    h: slideHeight
                 });
             }
 
