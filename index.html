@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chuyển Đổi PDF sang PowerPoint Chuyên Nghiệp</title>
-    <!-- Tải thư viện PDF.js và PptxGenJS qua CDN -->
+    <title>Hệ Thống Chuyển Đổi File Đa Năng Chuyên Nghiệp</title>
+    <!-- Tải các thư viện xử lý qua CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             min-height: 100vh;
             display: flex;
@@ -21,112 +21,46 @@
         }
         .main-card {
             background: #ffffff;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.25);
             width: 100%;
-            max-width: 550px;
+            max-width: 600px;
             text-align: center;
         }
-        .logo-area { font-size: 48px; margin-bottom: 10px; }
-        h2 { color: #111827; font-size: 24px; margin-bottom: 8px; font-weight: 700; }
-        p.subtitle { color: #6b7280; margin-bottom: 25px; font-size: 14px; line-height: 1.5; }
-        
+        .logo-area { font-size: 42px; margin-bottom: 5px; }
+        h2 { color: #111827; font-size: 22px; margin-bottom: 5px; font-weight: 700; }
+        p.subtitle { color: #6b7280; margin-bottom: 20px; font-size: 13px; line-height: 1.4; }
+
+        /* Tab chọn chế độ chuyển đổi */
+        .mode-tabs {
+            display: flex;
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            font-size: 13px;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 8px;
+            color: #4b5563;
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active {
+            background: #ffffff;
+            color: #4f46e5;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Khu vực upload file */
         .upload-box {
             border: 2px dashed #6366f1;
             background: #f8fafc;
-            padding: 30px 20px;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .upload-box:hover { background: #eef2ff; border-color: #4f46e5; }
-        .upload-box input[type="file"] {
-            position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer;
-        }
-        .upload-text { color: #4b5563; font-size: 15px; font-weight: 500; }
-        .upload-text span { color: #4f46e5; text-decoration: underline; }
-        
-        .btn-submit {
-            width: 100%;
-            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-            color: white;
-            border: none;
-            padding: 15px;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .btn-submit:hover { opacity: 0.9; }
-        .btn-submit:disabled { background: #9ca3af; cursor: not-allowed; }
-
-        #status {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #4f46e5;
-            font-weight: 600;
-            word-break: break-word;
-        }
-        #fileName {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #059669;
-            font-weight: 500;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="main-card">
-        <div class="logo-area">📊</div>
-        <h2>Chuyển Đổi PDF sang PowerPoint</h2>
-        <p class="subtitle">Giữ nguyên 100% hình ảnh, font chữ, bố cục và công thức chuẩn xác tuyệt đối.</p>
-        
-        <div class="upload-box">
-            <input type="file" id="pdfFile" accept="application/pdf">
-            <div class="upload-text">Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span></div>
-        </div>
-
-        <div id="fileName"></div>
-        <button id="convertBtn" class="btn-submit" onclick="convertPdfToPptx()" disabled>Tiến Hành Chuyển Đổi Ngay</button>
-        <div id="status"></div>
-    </div>
-
-    <script>
-        // Cấu hình worker an toàn cho PDF.js
-        if (window.pdfjsLib) {
-            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        }
-
-        const fileInput = document.getElementById('pdfFile');
-        const convertBtn = document.getElementById('convertBtn');
-        const fileNameDiv = document.getElementById('fileName');
-        const statusDiv = document.getElementById('status');
-        let selectedFile = null;
-
-        fileInput.addEventListener('change', function(e) {
-            if (e.target.files.length > 0) {
-                selectedFile = e.target.files[0];
-                fileNameDiv.textContent = "Đã chọn: " + selectedFile.name;
-                convertBtn.disabled = false;
-                statusDiv.textContent = "";
-            }
-        });
-
-        async function convertPdfToPptx() {
-            if (!selectedFile) return;
-
-            convertBtn.disabled = true;
-            statusDiv.style.color = "#4f46e5";
-            statusDiv.textContent = "Đang đọc file PDF...";
-
-            try {
-                const arrayBuffer = await selectedFile.arrayBuffer();
-                
-                // Khởi tạo PDF loading task
-                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-                const pdf
+            padding: 25px 15px;
+            border-radius: 12
