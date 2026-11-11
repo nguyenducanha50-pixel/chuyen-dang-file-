@@ -187,7 +187,7 @@
             event.target.classList.add('active');
 
             if (mode === 'pdf-to-ppt') {
-                subDesc.textContent = "Chuyển PDF sang Slide ngang 16:9, trang tài liệu nằm gọn gàng, vừa khít chính giữa y hệt ảnh mẫu.";
+                subDesc.textContent = "Chuyển PDF sang PowerPoint chuẩn tỷ lệ A4 dọc tuyệt đối, tràn viền đẹp mắt.";
                 fileInput.accept = ".pdf";
                 uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'pdf-to-word') {
@@ -234,7 +234,7 @@
             }
         }
 
-        // 1. PDF sang PowerPoint (Slide ngang 16:9, fit đúng chiều cao slide, nằm chính giữa y hệt ảnh mẫu)
+        // 1. PDF sang PowerPoint (Khớp tuyệt đối khổ A4 dọc, lấp đầy slide chuẩn xác 100%)
         async function convertPdfToPptx() {
             statusDiv.textContent = "Đang đọc file PDF...";
             const arrayBuffer = await selectedFile.arrayBuffer();
@@ -244,20 +244,26 @@
 
             let pptx = new PptxGenJS();
             
-            // Khung slide ngang 16:9 chuẩn (Width: 10 inch, Height: 5.625 inch)
-            const slideWidth = 10;
-            const slideHeight = 5.625;
-            pptx.defineLayout({ name: 'CUSTOM_16_9', width: slideWidth, height: slideHeight });
-            pptx.layout = 'CUSTOM_16_9';
+            // Đọc trang đầu tiên để lấy tỷ lệ chính xác chuẩn của file PDF gốc
+            const firstPage = await pdfDoc.getPage(1);
+            const originalViewport = firstPage.getViewport({ scale: 1.0 });
+            const pdfWidth = originalViewport.width;
+            const pdfHeight = originalViewport.height;
+            const pdfRatio = pdfWidth / pdfHeight;
+
+            // Thiết lập slide PowerPoint khớp hoàn toàn tỷ lệ với trang PDF gốc (Quy đổi ra Inch)
+            // Chuẩn A4 dọc là tỷ lệ khoảng 1 : 1.414 (Ví dụ: rộng 7.5 inch, cao tuỳ chỉnh theo đúng file)
+            const slideWidth = 7.5;
+            const slideHeight = slideWidth / pdfRatio;
+
+            pptx.defineLayout({ name: 'EXACT_PDF_LAYOUT', width: slideWidth, height: slideHeight });
+            pptx.layout = 'EXACT_PDF_LAYOUT';
 
             for (let i = 1; i <= numPages; i++) {
                 statusDiv.textContent = `Đang xử lý trang ${i} / ${numPages}...`;
                 const page = await pdfDoc.getPage(i);
                 
-                const originalViewport = page.getViewport({ scale: 1.0 });
-                const pdfWidth = originalViewport.width;
-                const pdfHeight = originalViewport.height;
-
+                // Render chất lượng cao (scale 2.0 nét căng)
                 const viewport = page.getViewport({ scale: 2.0 });
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
@@ -267,23 +273,16 @@
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
                 const imgData = canvas.toDataURL('image/png');
 
-                // Cố định chiều cao ảnh vừa khít chiều cao slide (5.625 inch), 
-                // chiều rộng tự động tính toán theo tỷ lệ A4 và căn giữa ngang tuyệt đối.
-                let imgRatio = pdfWidth / pdfHeight;
-                let finalH = slideHeight;
-                let finalW = finalH * imgRatio;
-                let finalX = (slideWidth - finalW) / 2;
-                let finalY = 0;
-
                 let slide = pptx.addSlide();
                 slide.background = { color: "FFFFFF" };
                 
+                // Phủ kín khít 100% slide, không lệch kích thước, không mất viền
                 slide.addImage({
                     data: imgData,
-                    x: finalX,
-                    y: finalY,
-                    w: finalW,
-                    h: finalH
+                    x: 0,
+                    y: 0,
+                    w: slideWidth,
+                    h: slideHeight
                 });
             }
 
@@ -318,7 +317,7 @@
                 const imgData = canvas.toDataURL('image/png');
 
                 imagesHtml += `<div style="text-align: center; page-break-after: always; margin-bottom: 20px;">
-                    <img src="${imgData}" style="max-height: 650px; width: auto; height: auto;" />
+                    <img src="${imgData}" style="width: 100%; max-width: 700px; height: auto;" />
                 </div>`;
             }
 
