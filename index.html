@@ -63,4 +63,294 @@
             border: 2px dashed #6366f1;
             background: #f8fafc;
             padding: 25px 15px;
-            border-radius: 12
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .upload-box:hover { background: #eef2ff; border-color: #4f46e5; }
+        .upload-box input[type="file"] {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer;
+        }
+        .upload-text { color: #4b5563; font-size: 14px; font-weight: 500; }
+        .upload-text span { color: #4f46e5; text-decoration: underline; }
+
+        #fileName {
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #059669;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        /* Các nút hành động */
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn-submit:hover { opacity: 0.95; }
+        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:disabled { background: #9ca3af; cursor: not-allowed; transform: none; }
+
+        /* Nút Download thủ công */
+        .btn-download {
+            width: 100%;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: none;
+            transition: opacity 0.2s;
+        }
+        .btn-download:hover { opacity: 0.95; }
+
+        #status {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #4f46e5;
+            font-weight: 600;
+            word-break: break-word;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-card">
+        <div class="logo-area">⚡</div>
+        <h2>Trình Chuyển Đổi File Thông Minh</h2>
+        <p class="subtitle" id="subDesc">Chuyển đổi file giữ nguyên 100% định dạng, hình ảnh và bố cục chuẩn xác.</p>
+        
+        <!-- Thanh chọn chế độ -->
+        <div class="mode-tabs">
+            <button class="tab-btn active" onclick="switchMode('pdf-to-ppt')">PDF ➔ PowerPoint</button>
+            <button class="tab-btn" onclick="switchMode('pdf-to-word')">PDF ➔ Word</button>
+            <button class="tab-btn" onclick="switchMode('doc-to-pdf')">Word/PPT ➔ PDF</button>
+        </div>
+
+        <div class="upload-box">
+            <input type="file" id="fileInput" accept=".pdf">
+            <div class="upload-text" id="uploadLabel">Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span></div>
+        </div>
+
+        <div id="fileName"></div>
+        
+        <button id="convertBtn" class="btn-submit" onclick="startConversion()" disabled>Tiến Hành Chuyển Đổi Ngay</button>
+        <button id="downloadBtn" class="btn-download" onclick="triggerDownload()">📥 Tải Xuống File Kết Quả</button>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // Cấu hình Worker cho PDF.js
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
+        let currentMode = 'pdf-to-ppt';
+        let selectedFile = null;
+        let generatedBlob = null;
+        let outputFileName = "";
+
+        const fileInput = document.getElementById('fileInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const fileNameDiv = document.getElementById('fileName');
+        const statusDiv = document.getElementById('status');
+        const subDesc = document.getElementById('subDesc');
+        const uploadLabel = document.getElementById('uploadLabel');
+
+        function switchMode(mode) {
+            currentMode = mode;
+            selectedFile = null;
+            fileInput.value = "";
+            fileNameDiv.textContent = "";
+            convertBtn.disabled = true;
+            downloadBtn.style.display = "none";
+            statusDiv.textContent = "";
+
+            // Đổi giao diện theo mode
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (mode === 'pdf-to-ppt') {
+                subDesc.textContent = "Chuyển từng trang PDF thành ảnh sắc nét nhúng vào PowerPoint (Giữ nguyên 100% giao diện, công thức).";
+                fileInput.accept = ".pdf";
+                uploadLabel.innerHTML = 'Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
+            } else if (mode === 'pdf-to-word') {
+                subDesc.textContent = "Trích xuất toàn bộ văn bản từ PDF sang tài liệu Word (.docx) sạch sẽ.";
+                fileInput.accept = ".pdf";
+                uploadLabel.innerHTML = 'Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
+            } else if (mode === 'doc-to-pdf') {
+                subDesc.textContent = "Chuyển tài liệu Word (.docx) sang định dạng xem PDF tiêu chuẩn.";
+                fileInput.accept = ".docx,.doc,.pptx";
+                uploadLabel.innerHTML = 'Kéo thả file Word/PPT vào đây hoặc <span>chọn file từ máy</span>';
+            }
+        }
+
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                fileNameDiv.textContent = "📄 Đã chọn: " + selectedFile.name;
+                convertBtn.disabled = false;
+                downloadBtn.style.display = "none";
+                statusDiv.textContent = "";
+            }
+        });
+
+        async function startConversion() {
+            if (!selectedFile) return;
+
+            convertBtn.disabled = true;
+            downloadBtn.style.display = "none";
+            statusDiv.style.color = "#4f46e5";
+
+            try {
+                if (currentMode === 'pdf-to-ppt') {
+                    await convertPdfToPptx();
+                } else if (currentMode === 'pdf-to-word') {
+                    await convertPdfToWord();
+                } else if (currentMode === 'doc-to-pdf') {
+                    await convertDocToPdf();
+                }
+            } catch (error) {
+                console.error(error);
+                statusDiv.style.color = "#dc2626";
+                statusDiv.textContent = "❌ Lỗi xử lý: " + (error.message || "Vui lòng kiểm tra lại file đầu vào.");
+                convertBtn.disabled = false;
+            }
+        }
+
+        // 1. PDF sang PowerPoint (Render ảnh từng trang chống vỡ font / lệch công thức)
+        async function convertPdfToPptx() {
+            statusDiv.textContent = "Đang đọc file PDF...";
+            const arrayBuffer = await selectedFile.arrayBuffer();
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdfDoc = await loadingTask.promise;
+            const numPages = pdfDoc.numPages;
+
+            let pptx = new PptxGenJS();
+            pptx.defineLayout({ name: 'CUSTOM_16_9', width: 10, height: 5.625 });
+            pptx.layout = 'CUSTOM_16_9';
+
+            for (let i = 1; i <= numPages; i++) {
+                statusDiv.textContent = `Đang xử lý trang ${i} / ${numPages}...`;
+                const page = await pdfDoc.getPage(i);
+                const viewport = page.getViewport({ scale: 2.0 }); // Scale 2.0 nét căng
+                
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+                const imgData = canvas.toDataURL('image/png');
+
+                let slide = pptx.addSlide();
+                slide.addImage({ data: imgData, x: 0, y: 0, w: '100%', h: '100%' });
+            }
+
+            statusDiv.textContent = "Đang tạo file PowerPoint...";
+            outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".pptx";
+            
+            // Xuất ra dạng blob để người dùng bấm nút tải thủ công chủ động
+            generatedBlob = await pptx.write({ outputType: 'blob' });
+            
+            finalizeSuccess("Chuyển đổi sang PowerPoint thành công!");
+        }
+
+        // 2. PDF sang Word
+        async function convertPdfToWord() {
+            statusDiv.textContent = "Đang trích xuất văn bản từ PDF...";
+            const arrayBuffer = await selectedFile.arrayBuffer();
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdfDoc = await loadingTask.promise;
+            const numPages = pdfDoc.numPages;
+
+            let fullText = "";
+            for (let i = 1; i <= numPages; i++) {
+                statusDiv.textContent = `Đang đọc trang văn bản ${i} / ${numPages}...`;
+                const page = await pdfDoc.getPage(i);
+                const textContent = await page.getTextContent();
+                let pageText = textContent.items.map(item => item.str).join(" ");
+                fullText += `<p>${pageText}</p><br>`;
+            }
+
+            // Tạo cấu trúc file Word đơn giản chuẩn HTML Blob
+            const htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Export to Word</title></head>
+                <body style='font-family: "Times New Roman", Times, serif; font-size: 14pt;'>
+                    ${fullText}
+                </body>
+                </html>`;
+
+            generatedBlob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+            outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".doc";
+            
+            finalizeSuccess("Chuyển đổi sang Word thành công!");
+        }
+
+        // 3. Word sang PDF cơ bản
+        async function convertDocToPdf() {
+            statusDiv.textContent = "Đang đọc nội dung file Word...";
+            const arrayBuffer = await selectedFile.arrayBuffer();
+            
+            const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+            let text = result.value;
+
+            // In ra file PDF đơn giản thông qua cấu trúc in ấn ảo của trình duyệt hoặc tạo văn bản
+            let printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>${selectedFile.name}</title>
+                    <style>
+                        body { font-family: 'Times New Roman', Times, serif; padding: 40px; line-height: 1.6; font-size: 14pt; white-space: pre-wrap; }
+                    </style>
+                </head>
+                <body>${text}</body>
+                </html>
+            `);
+            printWindow.document.close();
+            
+            statusDiv.style.color = "#059669";
+            statusDiv.textContent = "Đã mở cửa sổ bản in! Bạn hãy chọn 'Lưu dưới dạng PDF' (Save as PDF) trong bảng điều khiển in.";
+            convertBtn.disabled = false;
+        }
+
+        function finalizeSuccess(msg) {
+            statusDiv.style.color = "#059669";
+            statusDiv.textContent = "✨ " + msg + " Bấm nút bên dưới để tải file về máy.";
+            downloadBtn.style.display = "block";
+            convertBtn.disabled = false;
+        }
+
+        function triggerDownload() {
+            if (!generatedBlob) return;
+            const url = URL.createObjectURL(generatedBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = outputFileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
