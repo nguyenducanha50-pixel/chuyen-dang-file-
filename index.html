@@ -187,7 +187,7 @@
             event.target.classList.add('active');
 
             if (mode === 'pdf-to-ppt') {
-                subDesc.textContent = "Chuyển PDF sang Slide khổ dọc chuẩn A4, hiển thị vừa khít trọn vẹn trong trang trắng.";
+                subDesc.textContent = "Chuyển PDF sang Slide ngang 16:9, trang tài liệu nằm gọn gàng, vừa khít chính giữa y hệt ảnh mẫu.";
                 fileInput.accept = ".pdf";
                 uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'pdf-to-word') {
@@ -234,7 +234,7 @@
             }
         }
 
-        // 1. PDF sang PowerPoint (Thiết lập slide theo khung dọc chuẩn A4 để khớp hoàn hảo 100%)
+        // 1. PDF sang PowerPoint (Slide ngang 16:9, fit đúng chiều cao slide, nằm chính giữa y hệt ảnh mẫu)
         async function convertPdfToPptx() {
             statusDiv.textContent = "Đang đọc file PDF...";
             const arrayBuffer = await selectedFile.arrayBuffer();
@@ -244,17 +244,20 @@
 
             let pptx = new PptxGenJS();
             
-            // Định nghĩa khung slide dọc chuẩn A4 (Width: 7.5 inch, Height: 10 inch) 
-            // Giúp bức ảnh nằm gọn gàng, vừa khít tuyệt đối trong trang trắng không bị tràn viền
-            const slideWidth = 7.5;
-            const slideHeight = 10.0;
-            pptx.defineLayout({ name: 'CUSTOM_PORTRAIT', width: slideWidth, height: slideHeight });
-            pptx.layout = 'CUSTOM_PORTRAIT';
+            // Khung slide ngang 16:9 chuẩn (Width: 10 inch, Height: 5.625 inch)
+            const slideWidth = 10;
+            const slideHeight = 5.625;
+            pptx.defineLayout({ name: 'CUSTOM_16_9', width: slideWidth, height: slideHeight });
+            pptx.layout = 'CUSTOM_16_9';
 
             for (let i = 1; i <= numPages; i++) {
                 statusDiv.textContent = `Đang xử lý trang ${i} / ${numPages}...`;
                 const page = await pdfDoc.getPage(i);
                 
+                const originalViewport = page.getViewport({ scale: 1.0 });
+                const pdfWidth = originalViewport.width;
+                const pdfHeight = originalViewport.height;
+
                 const viewport = page.getViewport({ scale: 2.0 });
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
@@ -264,15 +267,23 @@
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
                 const imgData = canvas.toDataURL('image/png');
 
+                // Cố định chiều cao ảnh vừa khít chiều cao slide (5.625 inch), 
+                // chiều rộng tự động tính toán theo tỷ lệ A4 và căn giữa ngang tuyệt đối.
+                let imgRatio = pdfWidth / pdfHeight;
+                let finalH = slideHeight;
+                let finalW = finalH * imgRatio;
+                let finalX = (slideWidth - finalW) / 2;
+                let finalY = 0;
+
                 let slide = pptx.addSlide();
                 slide.background = { color: "FFFFFF" };
                 
                 slide.addImage({
                     data: imgData,
-                    x: 0,
-                    y: 0,
-                    w: slideWidth,
-                    h: slideHeight
+                    x: finalX,
+                    y: finalY,
+                    w: finalW,
+                    h: finalH
                 });
             }
 
@@ -307,7 +318,7 @@
                 const imgData = canvas.toDataURL('image/png');
 
                 imagesHtml += `<div style="text-align: center; page-break-after: always; margin-bottom: 20px;">
-                    <img src="${imgData}" style="max-width: 100%; height: auto;" />
+                    <img src="${imgData}" style="max-height: 650px; width: auto; height: auto;" />
                 </div>`;
             }
 
