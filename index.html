@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body {
@@ -191,7 +192,7 @@
                 fileInput.accept = ".pdf";
                 uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'pdf-to-word') {
-                subDesc.textContent = "Trích xuất toàn bộ văn bản từ PDF sang tài liệu Word (.doc) sạch sẽ.";
+                subDesc.textContent = "Chuyển PDF sang Word (.docx) bằng cách nhúng từng trang thành ảnh gốc (Giữ nguyên 100% không vỡ chữ/công thức).";
                 fileInput.accept = ".pdf";
                 uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'doc-to-pdf') {
@@ -243,8 +244,6 @@
             const numPages = pdfDoc.numPages;
 
             let pptx = new PptxGenJS();
-            
-            // Cố định slide theo chuẩn khung ngang 16:9 (Width: 10 inch, Height: 5.625 inch)
             const slideWidth = 10;
             const slideHeight = 5.625;
             pptx.defineLayout({ name: 'CUSTOM_16_9', width: slideWidth, height: slideHeight });
@@ -254,12 +253,10 @@
                 statusDiv.textContent = `Đang xử lý trang ${i} / ${numPages}...`;
                 const page = await pdfDoc.getPage(i);
                 
-                // Lấy kích thước gốc để tính tỷ lệ chuẩn
                 const originalViewport = page.getViewport({ scale: 1.0 });
                 const pdfWidth = originalViewport.width;
                 const pdfHeight = originalViewport.height;
 
-                // Render độ nét cao (scale 2.0)
                 const viewport = page.getViewport({ scale: 2.0 });
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
@@ -269,16 +266,13 @@
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
                 const imgData = canvas.toDataURL('image/png');
 
-                // Tính toán kích thước để trang PDF khít chiều cao slide (slideHeight), 
-                // chiều rộng tự co giãn và căn giữa ngang (tạo khoảng trắng 2 bên hệt như ảnh mẫu của bạn)
                 let imgRatio = pdfWidth / pdfHeight;
                 let finalH = slideHeight;
                 let finalW = slideHeight * imgRatio;
-                let finalX = (slideWidth - finalW) / 2; // Căn giữa màn hình ngang
+                let finalX = (slideWidth - finalW) / 2;
                 let finalY = 0;
 
                 let slide = pptx.addSlide();
-                // Nền slide màu trắng sạch sẽ
                 slide.background = { color: "FFFFFF" };
                 
                 slide.addImage({
@@ -297,33 +291,75 @@
             finalizeSuccess("Chuyển đổi sang PowerPoint thành công!");
         }
 
-        // 2. PDF sang Word
+        // 2. PDF sang Word (Render ảnh từng trang đưa vào Word chuẩn tuyệt đối, không lỗi chữ)
         async function convertPdfToWord() {
-            statusDiv.textContent = "Đang trích xuất văn bản từ PDF...";
+            statusDiv.textContent = "Đang đọc file PDF để chuyển sang Word...";
             const arrayBuffer = await selectedFile.arrayBuffer();
             const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
             const pdfDoc = await loadingTask.promise;
             const numPages = pdfDoc.numPages;
 
-            let fullText = "";
+            let docChildren = [];
+
             for (let i = 1; i <= numPages; i++) {
-                statusDiv.textContent = `Đang đọc trang văn bản ${i} / ${numPages}...`;
+                statusDiv.textContent = `Đang xử lý trang ${i} / ${numPages}...`;
                 const page = await pdfDoc.getPage(i);
-                const textContent = await page.getTextContent();
-                let pageText = textContent.items.map(item => item.str).join(" ");
-                fullText += `<p>${pageText}</p><br>`;
+                
+                // Lấy kích thước gốc để tính tỷ lệ hiển thị chuẩn A4 trong Word
+                const originalViewport = page.getViewport({ scale: 1.0 });
+                const pdfWidth = originalViewport.width;
+                const pdfHeight = originalViewport.height;
+
+                // Render chất lượng cao
+                const viewport = page.getViewport({ scale: 2.0 });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+                
+                // Chuyển canvas thành mảng Uint8Array để thư viện docx nhận diện
+                const dataUrl = canvas.toDataURL('image/png');
+                const blobBin = atob(dataUrl.split(',')[1]);
+                let array = [];
+                for (let j = 0; j < blobBin.length; j++) {
+                    array.push(blobBin.charCodeAt(j));
+                }
+                const imageUint8Array = new Uint8Array(array);
+
+                // Tính toán kích thước hiển thị cân đối trong file Word (chiều rộng chuẩn A4 khoảng 450-500 pixel)
+                let renderWidth = 500;
+                let renderHeight = (pdfHeight / pdfWidth) * renderWidth;
+
+                // Thêm hình ảnh trang vào tài liệu Word
+                docChildren.push(
+                    new docx.Paragraph({
+                        children: [
+                            new docx.ImageRun({
+                                data: imageUint8Array,
+                                transformation: {
+                                    width: renderWidth,
+                                    height: renderHeight,
+                                },
+                            }),
+                        ],
+                        alignment: docx.AlignmentType.CENTER,
+                        spacing: { after: 300 }
+                    })
+                );
             }
 
-            const htmlContent = `
-                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-                <head><meta charset='utf-8'><title>Export to Word</title></head>
-                <body style='font-family: "Times New Roman", Times, serif; font-size: 14pt;'>
-                    ${fullText}
-                </body>
-                </html>`;
+            statusDiv.textContent = "Đang xuất file Word (.docx)...";
+            const doc = new docx.Document({
+                sections: [{
+                    properties: {},
+                    children: docChildren,
+                }],
+            });
 
-            generatedBlob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
-            outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".doc";
+            generatedBlob = await docx.Packer.toBlob(doc);
+            outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".docx";
             
             finalizeSuccess("Chuyển đổi sang Word thành công!");
         }
