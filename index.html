@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Chuyển Đổi File Đa Năng Chuyên Nghiệp</title>
+    <title>Trình Chuyển Đổi File Đa Năng Chuyên Nghiệp</title>
     <!-- Tải các thư viện xử lý qua CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
@@ -25,14 +25,14 @@
             border-radius: 24px;
             box-shadow: 0 20px 35px rgba(0, 0, 0, 0.25);
             width: 100%;
-            max-width: 600px;
+            max-width: 580px;
             text-align: center;
         }
         .logo-area { font-size: 42px; margin-bottom: 5px; }
         h2 { color: #111827; font-size: 22px; margin-bottom: 5px; font-weight: 700; }
         p.subtitle { color: #6b7280; margin-bottom: 20px; font-size: 13px; line-height: 1.4; }
 
-        /* Tab chọn chế độ chuyển đổi */
+        /* Thanh chọn chế độ */
         .mode-tabs {
             display: flex;
             background: #f3f4f6;
@@ -42,8 +42,8 @@
         }
         .tab-btn {
             flex: 1;
-            padding: 10px 8px;
-            font-size: 13px;
+            padding: 10px 6px;
+            font-size: 12px;
             font-weight: 600;
             border: none;
             background: transparent;
@@ -58,12 +58,12 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
 
-        /* Khu vực upload file */
+        /* Khu vực khung upload file */
         .upload-box {
             border: 2px dashed #6366f1;
             background: #f8fafc;
-            padding: 25px 15px;
-            border-radius: 12px;
+            padding: 30px 20px;
+            border-radius: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 15px;
@@ -71,10 +71,10 @@
         }
         .upload-box:hover { background: #eef2ff; border-color: #4f46e5; }
         .upload-box input[type="file"] {
-            position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer;
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; z-index: 10;
         }
         .upload-text { color: #4b5563; font-size: 14px; font-weight: 500; }
-        .upload-text span { color: #4f46e5; text-decoration: underline; }
+        .upload-text span { color: #4f46e5; text-decoration: underline; font-weight: 600; }
 
         #fileName {
             margin-bottom: 15px;
@@ -84,7 +84,7 @@
             word-break: break-all;
         }
 
-        /* Các nút hành động */
+        /* Nút hành động */
         .btn-submit {
             width: 100%;
             background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
@@ -101,7 +101,7 @@
         .btn-submit:active { transform: scale(0.98); }
         .btn-submit:disabled { background: #9ca3af; cursor: not-allowed; transform: none; }
 
-        /* Nút Download thủ công */
+        /* Nút Tải Xuống thủ công */
         .btn-download {
             width: 100%;
             background: linear-gradient(135deg, #059669 0%, #10b981 100%);
@@ -137,14 +137,15 @@
         
         <!-- Thanh chọn chế độ -->
         <div class="mode-tabs">
-            <button class="tab-btn active" onclick="switchMode('pdf-to-ppt')">PDF ➔ PowerPoint</button>
-            <button class="tab-btn" onclick="switchMode('pdf-to-word')">PDF ➔ Word</button>
-            <button class="tab-btn" onclick="switchMode('doc-to-pdf')">Word/PPT ➔ PDF</button>
+            <button class="tab-btn active" onclick="switchMode('pdf-to-ppt', event)">PDF ➔ PowerPoint</button>
+            <button class="tab-btn" onclick="switchMode('pdf-to-word', event)">PDF ➔ Word</button>
+            <button class="tab-btn" onclick="switchMode('doc-to-pdf', event)">Word/PPT ➔ PDF</button>
         </div>
 
-        <div class="upload-box">
+        <!-- Khung Upload -->
+        <div class="upload-box" id="dropZone">
             <input type="file" id="fileInput" accept=".pdf">
-            <div class="upload-text" id="uploadLabel">Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span></div>
+            <div class="upload-text" id="uploadLabel">📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span></div>
         </div>
 
         <div id="fileName"></div>
@@ -156,7 +157,6 @@
     </div>
 
     <script>
-        // Cấu hình Worker cho PDF.js
         if (window.pdfjsLib) {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
         }
@@ -174,7 +174,7 @@
         const subDesc = document.getElementById('subDesc');
         const uploadLabel = document.getElementById('uploadLabel');
 
-        function switchMode(mode) {
+        function switchMode(mode, event) {
             currentMode = mode;
             selectedFile = null;
             fileInput.value = "";
@@ -183,22 +183,21 @@
             downloadBtn.style.display = "none";
             statusDiv.textContent = "";
 
-            // Đổi giao diện theo mode
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
 
             if (mode === 'pdf-to-ppt') {
                 subDesc.textContent = "Chuyển từng trang PDF thành ảnh sắc nét nhúng vào PowerPoint (Giữ nguyên 100% giao diện, công thức).";
                 fileInput.accept = ".pdf";
-                uploadLabel.innerHTML = 'Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
+                uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'pdf-to-word') {
-                subDesc.textContent = "Trích xuất toàn bộ văn bản từ PDF sang tài liệu Word (.docx) sạch sẽ.";
+                subDesc.textContent = "Trích xuất toàn bộ văn bản từ PDF sang tài liệu Word (.doc) sạch sẽ.";
                 fileInput.accept = ".pdf";
-                uploadLabel.innerHTML = 'Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
+                uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'doc-to-pdf') {
                 subDesc.textContent = "Chuyển tài liệu Word (.docx) sang định dạng xem PDF tiêu chuẩn.";
                 fileInput.accept = ".docx,.doc,.pptx";
-                uploadLabel.innerHTML = 'Kéo thả file Word/PPT vào đây hoặc <span>chọn file từ máy</span>';
+                uploadLabel.innerHTML = '📂 Kéo thả file Word/PPT vào đây hoặc <span>chọn file từ máy</span>';
             }
         }
 
@@ -235,7 +234,7 @@
             }
         }
 
-        // 1. PDF sang PowerPoint (Render ảnh từng trang chống vỡ font / lệch công thức)
+        // 1. PDF sang PowerPoint (Render ảnh chống vỡ font / lệch công thức)
         async function convertPdfToPptx() {
             statusDiv.textContent = "Đang đọc file PDF...";
             const arrayBuffer = await selectedFile.arrayBuffer();
@@ -266,8 +265,6 @@
 
             statusDiv.textContent = "Đang tạo file PowerPoint...";
             outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".pptx";
-            
-            // Xuất ra dạng blob để người dùng bấm nút tải thủ công chủ động
             generatedBlob = await pptx.write({ outputType: 'blob' });
             
             finalizeSuccess("Chuyển đổi sang PowerPoint thành công!");
@@ -290,7 +287,6 @@
                 fullText += `<p>${pageText}</p><br>`;
             }
 
-            // Tạo cấu trúc file Word đơn giản chuẩn HTML Blob
             const htmlContent = `
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                 <head><meta charset='utf-8'><title>Export to Word</title></head>
@@ -309,11 +305,9 @@
         async function convertDocToPdf() {
             statusDiv.textContent = "Đang đọc nội dung file Word...";
             const arrayBuffer = await selectedFile.arrayBuffer();
-            
             const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
             let text = result.value;
 
-            // In ra file PDF đơn giản thông qua cấu trúc in ấn ảo của trình duyệt hoặc tạo văn bản
             let printWindow = window.open('', '_blank');
             printWindow.document.write(`
                 <html>
@@ -329,7 +323,7 @@
             printWindow.document.close();
             
             statusDiv.style.color = "#059669";
-            statusDiv.textContent = "Đã mở cửa sổ bản in! Bạn hãy chọn 'Lưu dưới dạng PDF' (Save as PDF) trong bảng điều khiển in.";
+            statusDiv.textContent = "Đã mở cửa sổ bản in! Bạn hãy chọn 'Lưu dưới dạng PDF' (Save as PDF).";
             convertBtn.disabled = false;
         }
 
