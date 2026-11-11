@@ -187,7 +187,7 @@
             event.target.classList.add('active');
 
             if (mode === 'pdf-to-ppt') {
-                subDesc.textContent = "Chuyển PDF sang Slide ngang 16:9 chuẩn xác, trang tài liệu nằm chính giữa, không bị cắt cụt.";
+                subDesc.textContent = "Chuyển PDF sang Slide ngang 16:9, trang tài liệu nằm gọn gàng vừa khít trong khung slide trắng.";
                 fileInput.accept = ".pdf";
                 uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'pdf-to-word') {
@@ -234,7 +234,7 @@
             }
         }
 
-        // 1. PDF sang PowerPoint (Slide ngang 16:9, fit chiều cao, căn giữa tuyệt đối, không bị cắt mất chữ)
+        // 1. PDF sang PowerPoint (Thu nhỏ tỷ lệ vừa khít khung slide trắng, căn giữa hoàn hảo)
         async function convertPdfToPptx() {
             statusDiv.textContent = "Đang đọc file PDF...";
             const arrayBuffer = await selectedFile.arrayBuffer();
@@ -267,12 +267,13 @@
                 await page.render({ canvasContext: context, viewport: viewport }).promise;
                 const imgData = canvas.toDataURL('image/png');
 
-                // Tính toán tỷ lệ chuẩn: Giữ trọn vẹn chiều cao slide, tự động co giãn chiều rộng và căn giữa
+                // Tinh chỉnh: Đặt chiều cao ảnh bằng 90% chiều cao slide (5.0 inch) để nó nằm gọn gàng, 
+                // có khoảng cách đẹp mắt phía trên và dưới trong khung trang giấy trắng của PowerPoint.
                 let imgRatio = pdfWidth / pdfHeight;
-                let finalH = slideHeight;
-                let finalW = slideHeight * imgRatio;
-                let finalX = (slideWidth - finalW) / 2;
-                let finalY = 0;
+                let finalH = 5.0; 
+                let finalW = finalH * imgRatio;
+                let finalX = (slideWidth - finalW) / 2; // Căn giữa theo chiều ngang
+                let finalY = (slideHeight - finalH) / 2; // Căn giữa theo chiều dọc
 
                 let slide = pptx.addSlide();
                 slide.background = { color: "FFFFFF" };
@@ -317,7 +318,7 @@
                 const imgData = canvas.toDataURL('image/png');
 
                 imagesHtml += `<div style="text-align: center; page-break-after: always; margin-bottom: 20px;">
-                    <img src="${imgData}" style="max-width: 100%; height: auto;" />
+                    <img src="${imgData}" style="max-width: 90%; height: auto;" />
                 </div>`;
             }
 
