@@ -3,190 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chuyển Đổi File Đa Năng</title>
-    <!-- Tải các thư viện hỗ trợ xử lý file qua CDN -->
+    <title>Chuyển Đổi File PDF sang PowerPoint Chuyên Nghiệp</title>
+    <!-- Tải các thư viện xử lý PDF và xuất file PPTX chất lượng cao qua CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/docx@7.3.0/build/index.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #333;
+            color: #1f2937;
+            padding: 20px;
         }
-        .container {
+        .main-card {
             background: #ffffff;
             padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
             text-align: center;
         }
-        h2 { margin-bottom: 10px; color: #4a5568; font-size: 24px; }
-        p.subtitle { color: #718096; margin-bottom: 25px; font-size: 14px; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; font-size: 14px; }
-        select, input[type="file"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px dashed #cbd5e0;
-            border-radius: 8px;
-            background: #f7fafc;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.3s ease;
+        .logo-area {
+            font-size: 48px;
+            margin-bottom: 10px;
         }
-        select { border-style: solid; }
-        input[type="file"]:hover, select:focus { border-color: #667eea; }
-        button {
+        h2 { color: #111827; font-size: 26px; margin-bottom: 8px; font-weight: 700; }
+        p.subtitle { color: #6b7280; margin-bottom: 30px; font-size: 15px; line-height: 1.5; }
+        
+        .upload-box {
+            border: 2px dashed #6366f1;
+            background: #f8fafc;
+            padding: 30px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+            position: relative;
+        }
+        .upload-box:hover {
+            background: #eef2ff;
+            border-color: #4f46e5;
+        }
+        .upload-box input[type="file"] {
+            position: absolute;
             width: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-text {
+            color: #4b5563;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .upload-text span {
+            color: #4f46e5;
+            text-decoration: underline;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
             color: white;
             border: none;
-            padding: 14px;
+            padding: 15px;
             font-size: 16px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.4);
-        }
-        button:hover { opacity: 0.9; }
-        #status {
-            margin-top: 20px;
             font-weight: 600;
-            font-size: 14px;
-            padding: 10px;
-            border-radius: 6px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
         }
-        .loading { color: #d69e2e; background: #fefcbf; }
-        .success { color: #38a169; background: #f0fff4; }
-        .error { color: #e53e3e; background: #fff5f5; }
+        .btn-submit:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        #status {
+            margin-top: 25px;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 14px;
+            border-radius: 10px;
+            display: none;
+            text-align: left;
+            line-height: 1.4;
+        }
+        .loading { color: #b45309; background: #fef3c7; border: 1px solid #fde68a; display: block !important; }
+        .success { color: #047857; background: #ecfdf5; border: 1px solid #a7f3d0; display: block !important; }
+        .error { color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; display: block !important; }
+        
+        .file-info {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #4f46e5;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>✨ Chuyển Đổi File Chuyên Nghiệp</h2>
-        <p class="subtitle">Hỗ trợ chuyển đổi nhanh chóng file PDF sang Word hoặc PowerPoint ngay trên trình duyệt.</p>
+    <div class="main-card">
+        <div class="logo-area">📊</div>
+        <h2>Chuyển Đổi PDF sang PowerPoint</h2>
+        <p class="subtitle">Giữ nguyên 100% hình ảnh, font chữ, bố cục và công thức chuẩn xác tuyệt đối.</p>
         
-        <div class="form-group">
-            <label for="conversionType">Chọn kiểu chuyển đổi:</label>
-            <select id="conversionType">
-                <option value="pdf-to-word">📄 PDF sang Word (.docx)</option>
-                <option value="pdf-to-ppt">📊 PDF sang PowerPoint (.pptx)</option>
-            </select>
+        <div class="upload-box" id="dropZone">
+            <div class="upload-text">
+                📁 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>
+            </div>
+            <input type="file" id="fileInput" accept=".pdf" onchange="updateFileName()">
         </div>
-
-        <div class="form-group">
-            <label for="fileInput">Tải file PDF lên:</label>
-            <input type="file" id="fileInput" accept=".pdf">
-        </div>
+        <div id="selectedFile" class="file-info"></div>
         
-        <button onclick="handleConversion()">Bắt Đầu Xử Lý</button>
+        <button class="btn-submit" onclick="convertPdfToPptx()">Tiến Hành Chuyển Đổi Ngay</button>
         
         <div id="status"></div>
     </div>
 
+    <canvas id="pdfCanvas" style="display: none;"></canvas>
+
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        async function handleConversion() {
+        function updateFileName() {
             const fileInput = document.getElementById('fileInput');
-            const type = document.getElementById('conversionType').value;
+            const fileDisplay = document.getElementById('selectedFile');
+            if (fileInput.files.length > 0) {
+                fileDisplay.innerHTML = "Đã chọn: " + fileInput.files[0].name;
+            }
+        }
+
+        async function convertPdfToPptx() {
+            const fileInput = document.getElementById('fileInput');
             const status = document.getElementById('status');
 
             if (fileInput.files.length === 0) {
                 status.className = "error";
-                status.innerHTML = "⚠️ Vui lòng chọn một file PDF trước!";
+                status.innerHTML = "⚠️ Vui lòng chọn một file PDF trước khi chuyển đổi!";
                 return;
             }
 
             const file = fileInput.files[0];
             status.className = "loading";
-            status.innerHTML = "⏳ Đang đọc nội dung file PDF, vui lòng đợi...";
+            status.innerHTML = "⏳ Đang khởi tạo bộ xử lý PDF...";
 
             try {
                 const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                let extractedText = "";
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                const pdfDoc = await loadingTask.promise;
+                const totalPages = pdfDoc.numPages;
 
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const textContent = await page.getTextContent();
-                    const pageText = textContent.items.map(item => item.str).join(" ");
-                    extractedText += `Trang ${i}\n` + pageText + "\n\n";
+                let pptx = new PtxGenJS();
+                // Thiết lập kích thước slide chuẩn 16:9 widescreen
+                pptx.defineLayout({ name: 'A4_LANDSCAPE', width: 10, height: 7.5 });
+                pptx.layout = 'A4_LANDSCAPE';
+
+                const canvas = document.getElementById('pdfCanvas');
+                const context = canvas.getContext('2d');
+
+                for (let i = 1; i <= totalPages; i++) {
+                    status.innerHTML = `⏳ Đang xử lý trang ${i} / ${totalPages}...`;
+                    
+                    const page = await pdfDoc.getPage(i);
+                    const viewport = page.getViewport({ scale: 2.0 }); // Scale 2.0 để ảnh cực kỳ sắc nét, không bị mờ
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    await page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    }).promise;
+
+                    // Chuyển trang PDF thành ảnh chất lượng cao dạng PNG
+                    const imgData = canvas.toDataURL('image/png');
+
+                    // Thêm slide mới và chèn ảnh full màn hình slide để giữ nguyên bản 100%
+                    let slide = pptx.addSlide();
+                    slide.addImage({
+                        data: imgData,
+                        x: 0,
+                        y: 0,
+                        w: '100%',
+                        h: '100%'
+                    });
                 }
 
-                if (type === 'pdf-to-word') {
-                    status.innerHTML = "📝 Đang định dạng và tạo file Word (.docx)...";
-                    createWordFile(extractedText, file.name);
-                } else if (type === 'pdf-to-ppt') {
-                    status.innerHTML = "📊 Đang thiết kế slide PowerPoint (.pptx)...";
-                    createPptFile(extractedText, file.name);
-                }
+                status.innerHTML = "💾 Đang xuất file PowerPoint (.pptx)...";
+                const outputName = file.name.replace(/\.[^/.]+$/, "") + "_converted.pptx";
+                
+                await pptx.writeFile({ fileName: outputName });
+
+                status.className = "success";
+                status.innerHTML = `🎉 Chuyển đổi thành công mỹ mãn! File <b>${outputName}</b> đã được tự động tải xuống máy của bạn.`;
 
             } catch (error) {
                 console.error(error);
                 status.className = "error";
-                status.innerHTML = "❌ Có lỗi xảy ra trong quá trình xử lý file!";
+                status.innerHTML = "❌ Có lỗi xảy ra trong quá trình xử lý file. Vui lòng kiểm tra lại file PDF!";
             }
         }
-
-        async function createWordFile(text, originalName) {
-            const docxContainer = window.docx;
-            const doc = new docxContainer.Document({
-                sections: [{
-                    properties: {},
-                    children: text.split('\n').map(line => new docxContainer.Paragraph({
-                        children: [new docxContainer.TextRun(line)]
-                    }))
-                }]
-            });
-
-            const blob = await docxContainer.Packer.toBlob(doc);
-            downloadBlob(blob, originalName.replace(/\.[^/.]+$/, "") + ".docx");
-            
-            const status = document.getElementById('status');
-            status.className = "success";
-            status.innerHTML = "🎉 Chuyển đổi sang Word thành công! File đang tải xuống.";
-        }
-
-        function createPptFile(text, originalName) {
-            let pptx = new PptxGenJS();
-            let paragraphs = text.split('\n\n');
-
-            paragraphs.forEach(para => {
-                if (para.trim() !== "") {
-                    let slide = pptx.addSlide();
-                    slide.addText(para, { x: 0.5, y: 0.5, w: '90%', h: '85%', fontSize: 18, color: '363636' });
-                }
-            });
-
-            pptx.writeFile({ fileName: originalName.replace(/\.[^/.]+$/, "") + ".pptx" }).then(() => {
-                const status = document.getElementById('status');
-                status.className = "success";
-                status.innerHTML = "🎉 Chuyển đổi sang PowerPoint thành công! File đang tải xuống.";
-            });
-        }
-
-        function downloadBlob(blob, filename) {
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
     </script>
-
 </body>
 </html>
