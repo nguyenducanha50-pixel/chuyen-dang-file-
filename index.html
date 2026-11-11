@@ -187,11 +187,11 @@
             event.target.classList.add('active');
 
             if (mode === 'pdf-to-ppt') {
-                subDesc.textContent = "Chuyển PDF sang PowerPoint chuẩn tỷ lệ dọc (A4), hiển thị trọn vẹn, chữ to rõ nét.";
+                subDesc.textContent = "Chuyển PDF sang PowerPoint chuẩn tỷ lệ dọc A4, tràn đầy màn hình y hệt bản gốc.";
                 fileInput.accept = ".pdf";
                 uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'pdf-to-word') {
-                subDesc.textContent = "Chuyển PDF sang Word (.doc) giữ nguyên vẹn bố cục ảnh chụp chuẩn A4 y hệt bản gốc.";
+                subDesc.textContent = "Chuyển PDF sang Word (.doc) giữ nguyên vẹn bố cục ảnh chụp chuẩn A4.";
                 fileInput.accept = ".pdf";
                 uploadLabel.innerHTML = '📂 Kéo thả file PDF vào đây hoặc <span>chọn file từ máy</span>';
             } else if (mode === 'doc-to-pdf') {
@@ -234,7 +234,7 @@
             }
         }
 
-        // 1. PDF sang PowerPoint (Thiết lập Slide khổ dọc chuẩn A4, đầy đủ dung lượng từng trang hệt ảnh mẫu)
+        // 1. PDF sang PowerPoint (Thiết lập Slide khổ dọc chuẩn A4, tràn viền đẹp mắt giống hệt ảnh mẫu)
         async function convertPdfToPptx() {
             statusDiv.textContent = "Đang đọc file PDF...";
             const arrayBuffer = await selectedFile.arrayBuffer();
@@ -244,7 +244,7 @@
 
             let pptx = new PptxGenJS();
             
-            // Thiết lập slide theo khổ dọc chuẩn A4 (Width: 7.5 inch, Height: 10 inch) giống y hệt ảnh mẫu của bạn
+            // Thiết lập slide theo khổ dọc chuẩn A4 (Width: 7.5 inch, Height: 10 inch)
             const slideWidth = 7.5;
             const slideHeight = 10.0;
             pptx.defineLayout({ name: 'CUSTOM_PORTRAIT', width: slideWidth, height: slideHeight });
@@ -254,7 +254,6 @@
                 statusDiv.textContent = `Đang xử lý trang ${i} / ${numPages}...`;
                 const page = await pdfDoc.getPage(i);
                 
-                // Render chất lượng cao (scale 2.0 nét căng)
                 const viewport = page.getViewport({ scale: 2.0 });
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
@@ -267,7 +266,6 @@
                 let slide = pptx.addSlide();
                 slide.background = { color: "FFFFFF" };
                 
-                // Phủ kín trang slide dọc để giữ trọn vẹn toàn bộ dung lượng và kích thước như bản gốc
                 slide.addImage({
                     data: imgData,
                     x: 0,
@@ -284,7 +282,7 @@
             finalizeSuccess("Chuyển đổi sang PowerPoint thành công!");
         }
 
-        // 2. PDF sang Word (Đóng gói từng trang thành ảnh chuẩn A4 sắc nét y hệt PowerPoint)
+        // 2. PDF sang Word (Đóng gói từng trang thành ảnh khổ đứng chuẩn A4)
         async function convertPdfToWord() {
             statusDiv.textContent = "Đang đọc file PDF để chuyển sang Word...";
             const arrayBuffer = await selectedFile.arrayBuffer();
@@ -308,7 +306,7 @@
                 const imgData = canvas.toDataURL('image/png');
 
                 imagesHtml += `<div style="text-align: center; page-break-after: always; margin-bottom: 20px;">
-                    <img src="${imgData}" style="width: 100%; max-width: 700px; height: auto;" />
+                    <img src="${imgData}" style="width: 100%; max-width: 650px; height: auto;" />
                 </div>`;
             }
 
