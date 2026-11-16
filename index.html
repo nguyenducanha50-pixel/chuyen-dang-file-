@@ -383,3 +383,193 @@
     </script>
 </body>
 </html>
+<div class="hd-upscale-container">
+  <h3>🌟 Công cụ Nâng cấp Ảnh Full HD Siêu Nét</h3>
+  <p>Tải ảnh lên để tự động làm sắc nét chi tiết mà không làm vỡ hình:</p>
+  
+  <!-- Khu vực tải ảnh -->
+  <input type="file" id="uploadImage" accept="image/*" />
+  
+  <!-- Khung so sánh Before/After và Hiển thị -->
+  <div class="workspace" id="workspace" style="display: none;">
+    <div class="preview-box">
+      <canvas id="imageCanvas"></canvas>
+    </div>
+    
+    <!-- Thanh điều chỉnh độ nét / xử lý -->
+    <div class="controls">
+      <label for="sharpnessRange">Mức độ tăng nét (Sharpening): <span id="valDisplay">1.5x</span></label>
+      <input type="range" id="sharpnessRange" min="1" max="3" step="0.1" value="1.5" />
+      
+      <button id="downloadBtn" class="btn-primary">Tải ảnh Full HD về máy</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.hd-upscale-container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #1e1e2f;
+  color: #fff;
+  border-radius: 12px;
+  font-family: sans-serif;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+.hd-upscale-container h3 {
+  margin-top: 0;
+  color: #4facfe;
+}
+.workspace {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.preview-box {
+  width: 100%;
+  max-height: 400px;
+  overflow: hidden;
+  background: #111;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+canvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-primary:hover {
+  opacity: 0.9;
+}
+</style>
+
+<script>
+const uploadInput = document.getElementById('uploadImage');
+const workspace = document.getElementById('workspace');
+const canvas = document.getElementById('imageCanvas');
+const ctx = canvas.getContext('2d');
+const sharpnessRange = document.getElementById('sharpnessRange');
+const valDisplay = document.getElementById('valDisplay');
+const downloadBtn = document.getElementById('downloadBtn');
+
+let originalImage = null;
+
+uploadInput.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    originalImage = new Image();
+    originalImage.onload = function() {
+      workspace.style.display = 'flex';
+      processAndDrawImage();
+    };
+    originalImage.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+sharpnessRange.addEventListener('input', function() {
+  valDisplay.innerText = this.value + 'x';
+  if (originalImage) processAndDrawImage();
+});
+
+function processAndDrawImage() {
+  if (!originalImage) return;
+
+  // Nhân đôi hoặc nhân ba kích thước để đạt chuẩn Full HD / Upscale
+  const scale = parseFloat(sharpnessRange.value);
+  const targetWidth = Math.min(originalImage.width * scale, 1920); // Giới hạn tối đa Full HD
+  const targetHeight = Math.min(originalImage.height * scale, 1080);
+
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+
+  // Bật chế độ làm mịn ảnh chất lượng cao trên Canvas
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
+  // Vẽ ảnh phóng to lên Canvas
+  ctx.drawImage(originalImage, 0, 0, targetWidth, targetHeight);
+
+  // Áp dụng ma trận lọc sắc nét (Unsharp Mask / Sharpen Filter nhẹ) để giữ chi tiết không bị mờ
+  applySharpenFilter(ctx, targetWidth, targetHeight, 0.2);
+}
+
+// Hàm thuật toán ma trận tăng độ chi tiết nét biên
+function applySharpenFilter(context, width, height, intensity) {
+  const imageData = context.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  const w = imageData.width;
+  const h = imageData.height;
+  
+  // Ma trận lọc nét cơ bản
+  const weights = [
+     0, -1,  0,
+    -1,  5, -1,
+     0, -1,  0
+  ];
+  
+  const side = Math.round(Math.sqrt(weights.length));
+  const halfSide = Math.floor(side / 2);
+  const src = new Uint8ClampedArray(data);
+
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const sy = y;
+      const sx = x;
+      const dstOff = (y * w + x) * 4;
+      let r = 0, g = 0, b = 0;
+
+      for (let cy = 0; cy < side; cy++) {
+        for (let cx = 0; cx < side; cx++) {
+          const scy = sy + cy - halfSide;
+          const scx = sx + cx - halfSide;
+
+          if (scy >= 0 && scy < h && scx >= 0 && scx < w) {
+            const srcOff = (scy * w + scx) * 4;
+            const wt = weights[cy * side + cx];
+            r += src[srcOff] * wt;
+            g += src[srcOff + 1] * wt;
+            b += src[srcOff + 2] * wt;
+          }
+        }
+      }
+
+      // Pha trộn giữa ảnh gốc và ảnh sau khi lọc để không bị quá gắt hạt
+      data[dstOff] = src[dstOff] * (1 - intensity) + r * intensity;
+      data[dstOff + 1] = src[dstOff + 1] * (1 - intensity) + g * intensity;
+      data[dstOff + 2] = src[dstOff + 2] * (1 - intensity) + b * intensity;
+    }
+  }
+  context.putImageData(imageData, 0, 0);
+}
+
+// Tải ảnh về
+downloadBtn.addEventListener('click', function() {
+  const link = document.createElement('a');
+  link.download = 'anh-net-fullhd.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+</script>
