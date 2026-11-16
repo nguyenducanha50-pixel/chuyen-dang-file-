@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -22,191 +21,343 @@
  --green:#35d6a3;
 }
 * {box-sizing:border-box}
+
 body {
- margin:0;padding:26px 16px 45px;
- min-height:100vh;color:var(--txt);
+ margin:0;
+ padding:26px 16px 45px;
+ min-height:100vh;
+ color:var(--txt);
  font-family:Segoe UI,Arial,sans-serif;
  background:
  radial-gradient(ellipse at 10% 0%,#5544b744,transparent 38%),
  radial-gradient(ellipse at 90% 90%,#168c9d22,transparent 34%),
  var(--bg);
 }
+
 .shell {max-width:1050px;margin:auto}
+
 .top {
- display:flex;justify-content:space-between;
- align-items:center;margin-bottom:28px
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin-bottom:28px
 }
+
 .brand {display:flex;gap:12px;align-items:center}
+
 .logo {
- width:44px;height:44px;border-radius:14px;
- display:grid;place-items:center;
+ width:44px;
+ height:44px;
+ border-radius:14px;
+ display:grid;
+ place-items:center;
  background:linear-gradient(135deg,#7567ff,#36cfe1);
  font-size:23px
 }
+
 .brand b {font-size:17px}
+
 .brand small {
- display:block;color:var(--muted);
- font-size:10px;letter-spacing:1.5px;margin-top:3px
+ display:block;
+ color:var(--muted);
+ font-size:10px;
+ letter-spacing:1.5px;
+ margin-top:3px
 }
+
 .pill {
- border:1px solid var(--line);padding:9px 13px;
- border-radius:99px;color:#c6d3e8;font-size:12px
+ border:1px solid var(--line);
+ padding:9px 13px;
+ border-radius:99px;
+ color:#c6d3e8;
+ font-size:12px
 }
+
 .hero {text-align:center;margin:20px 0 28px}
+
 .eyebrow {
- color:#a69aff;font-size:11px;
- letter-spacing:2px;font-weight:800
+ color:#a69aff;
+ font-size:11px;
+ letter-spacing:2px;
+ font-weight:800
 }
-.hero h1 {font-size:clamp(28px,5vw,43px);margin:10px 0}
+
+.hero h1 {
+ font-size:clamp(28px,5vw,43px);
+ margin:10px 0
+}
+
 .grad {
  background:linear-gradient(90deg,#b0a6ff,#60e4e8);
- background-clip:text;color:transparent
+ background-clip:text;
+ color:transparent
 }
-.hero p {color:var(--muted);font-size:14px;line-height:1.6}
+
+.hero p {
+ color:var(--muted);
+ font-size:14px;
+ line-height:1.6
+}
+
 .card {
  background:linear-gradient(145deg,#15213aee,#0e1729f5);
- border:1px solid var(--line);border-radius:24px;
+ border:1px solid var(--line);
+ border-radius:24px;
  padding:clamp(16px,3vw,30px);
  box-shadow:0 24px 75px #0007
 }
+
 .tabs {
- display:grid;grid-template-columns:repeat(3,1fr);
- gap:9px;margin-bottom:23px
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:9px;
+ margin-bottom:23px
 }
+
 .tab {
- border:1px solid var(--line);border-radius:12px;
- background:#ffffff07;color:#b8c5d9;
- padding:13px 8px;font-weight:700;cursor:pointer
+ border:1px solid var(--line);
+ border-radius:12px;
+ background:#ffffff07;
+ color:#b8c5d9;
+ padding:13px 8px;
+ font-weight:700;
+ cursor:pointer
 }
+
 .tab.active {
  background:linear-gradient(110deg,#7061ed,#4d8fdf);
- border-color:#8e82ff;color:white
+ border-color:#8e82ff;
+ color:white
 }
+
 .heading {
- display:flex;justify-content:space-between;
- align-items:center;margin-bottom:16px
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin-bottom:16px
 }
+
 .heading h2 {font-size:19px;margin:0 0 6px}
+
 .heading p {
- font-size:12px;color:var(--muted);
- margin:0;line-height:1.5
+ font-size:12px;
+ color:var(--muted);
+ margin:0;
+ line-height:1.5
 }
+
 .modeicon {
- font-size:25px;background:#8173ff20;
- padding:10px;border-radius:13px
+ font-size:25px;
+ background:#8173ff20;
+ padding:10px;
+ border-radius:13px
 }
+
 .drop {
- position:relative;border:1.5px dashed #8173ff;
- border-radius:17px;min-height:145px;
- display:grid;place-items:center;text-align:center;
- padding:22px;background:#8173ff0b;cursor:pointer
+ position:relative;
+ border:1.5px dashed #8173ff;
+ border-radius:17px;
+ min-height:145px;
+ display:grid;
+ place-items:center;
+ text-align:center;
+ padding:22px;
+ background:#8173ff0b;
+ cursor:pointer
 }
-.drop.drag {border-color:var(--cyan);background:#4ed9e812}
+
+.drop.drag {
+ border-color:var(--cyan);
+ background:#4ed9e812
+}
+
 .drop input {
- position:absolute;inset:0;width:100%;height:100%;
- opacity:0;cursor:pointer
+ position:absolute;
+ inset:0;
+ width:100%;
+ height:100%;
+ opacity:0;
+ cursor:pointer
 }
+
 .drop strong {font-size:14px}
-.drop em {font-style:normal;color:#a99fff;text-decoration:underline}
-.drop small {
- display:block;color:var(--muted);
- margin-top:8px;font-size:11px
+
+.drop em {
+ font-style:normal;
+ color:#a99fff;
+ text-decoration:underline
 }
+
+.drop small {
+ display:block;
+ color:var(--muted);
+ margin-top:8px;
+ font-size:11px
+}
+
 .file {
- display:none;align-items:center;justify-content:space-between;
- gap:10px;padding:12px;margin-top:12px;
- border:1px solid var(--line);border-radius:12px;
+ display:none;
+ align-items:center;
+ justify-content:space-between;
+ gap:10px;
+ padding:12px;
+ margin-top:12px;
+ border:1px solid var(--line);
+ border-radius:12px;
  background:#ffffff08
 }
-.fileName {font-size:12px;overflow-wrap:anywhere}
-.fileMeta {font-size:10px;color:var(--muted);margin-top:4px}
-.remove {border:0;background:none;color:#ff91a1;cursor:pointer}
-.options {
- display:none;margin-top:16px;padding:16px;
- border:1px solid var(--line);border-radius:14px;
- background:#ffffff05
+
+.fileName {
+ font-size:12px;
+ overflow-wrap:anywhere
 }
-.options h3 {font-size:12px;margin:0 0 14px}
-.grid {display:grid;grid-template-columns:1fr 1fr;gap:15px}
-.field label {
- display:flex;justify-content:space-between;
- font-size:11px;color:#c6d3e8;margin-bottom:8px
+
+.fileMeta {
+ font-size:10px;
+ color:var(--muted);
+ margin-top:4px
 }
-.field output {color:#a99fff;font-weight:bold}
-.field input[type=range],.field select {width:100%}
-.field input[type=range] {accent-color:#8b7cff}
-.field select {
- background:#101a30;color:white;
- border:1px solid var(--line);
- border-radius:9px;padding:10px
+
+.remove {
+ border:0;
+ background:none;
+ color:#ff91a1;
+ cursor:pointer
 }
+
 .hint {
- font-size:10px;color:var(--muted);
- line-height:1.5;margin-top:12px
+ font-size:11px;
+ color:var(--muted);
+ line-height:1.6;
+ margin-top:12px
 }
+
 .preview {
- display:none;margin-top:16px;padding:13px;
- border:1px solid var(--line);border-radius:14px;
+ display:none;
+ margin-top:16px;
+ padding:13px;
+ border:1px solid var(--line);
+ border-radius:14px;
  background:#080f1f
 }
+
 .previewtop {
- display:flex;justify-content:space-between;
- gap:10px;font-size:12px;margin-bottom:10px
+ display:flex;
+ justify-content:space-between;
+ gap:10px;
+ font-size:12px;
+ margin-bottom:10px
 }
+
 .stage {
- min-height:140px;max-height:420px;overflow:auto;
- display:grid;place-items:center;background:#0b1323;
- border-radius:10px;padding:10px
+ min-height:180px;
+ max-height:560px;
+ overflow:auto;
+ display:grid;
+ place-items:center;
+ background:#0b1323;
+ border-radius:10px;
+ padding:10px
 }
-.stage canvas {max-width:100%;max-height:390px;height:auto;object-fit:contain}
-.actions {display:flex;gap:10px;margin-top:17px}
+
+.stage canvas {
+ max-width:100%;
+ max-height:520px;
+ height:auto;
+ object-fit:contain
+}
+
+.actions {
+ display:flex;
+ gap:10px;
+ margin-top:17px
+}
+
 .btn {
- border:0;border-radius:12px;padding:14px 17px;
- font-weight:800;cursor:pointer
+ border:0;
+ border-radius:12px;
+ padding:14px 17px;
+ font-weight:800;
+ cursor:pointer
 }
+
 .primary {
- flex:1;color:white;
+ flex:1;
+ color:white;
  background:linear-gradient(100deg,#7466f1,#4d98e4)
 }
+
 .download {
- display:none;color:#06251e;
+ display:none;
+ color:#06251e;
  background:linear-gradient(100deg,#43dfb0,#60ded7)
 }
-.btn:disabled {opacity:.45;cursor:not-allowed}
+
+.btn:disabled {
+ opacity:.45;
+ cursor:not-allowed
+}
+
 .status {
- min-height:22px;margin-top:13px;
- font-size:12px;color:#b9adff;line-height:1.5
+ min-height:22px;
+ margin-top:13px;
+ font-size:12px;
+ color:#b9adff;
+ line-height:1.5
 }
+
 .progress {
- height:5px;background:#ffffff12;
- border-radius:99px;overflow:hidden;
- display:none;margin-top:8px
+ height:5px;
+ background:#ffffff12;
+ border-radius:99px;
+ overflow:hidden;
+ display:none;
+ margin-top:8px
 }
+
 .bar {
- height:100%;width:0;
+ height:100%;
+ width:0;
  background:linear-gradient(90deg,#8173ff,#4ed9e8)
 }
+
 .features {
- display:grid;grid-template-columns:repeat(3,1fr);
- gap:12px;margin-top:17px
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:12px;
+ margin-top:17px
 }
+
 .feature {
  border:1px solid var(--line);
- background:#ffffff06;padding:14px;border-radius:13px
+ background:#ffffff06;
+ padding:14px;
+ border-radius:13px
 }
-.feature b {display:block;font-size:12px;margin:6px 0}
+
+.feature b {
+ display:block;
+ font-size:12px;
+ margin:6px 0
+}
+
 .feature span {
- font-size:10px;color:var(--muted);line-height:1.5
+ font-size:10px;
+ color:var(--muted);
+ line-height:1.5
 }
+
 .foot {
- text-align:center;color:#71809a;
- font-size:10px;margin-top:20px
+ text-align:center;
+ color:#71809a;
+ font-size:10px;
+ margin-top:20px
 }
+
 @media(max-width:650px) {
  .tabs {grid-template-columns:1fr}
  .features {grid-template-columns:1fr}
  .pill {display:none}
- .grid {grid-template-columns:1fr}
  .actions {flex-direction:column}
 }
 </style>
@@ -265,41 +416,9 @@ body {
  <button class="remove" id="remove">✕ Xóa</button>
 </div>
 
-<section class="options" id="options">
- <h3>ĐIỀU CHỈNH CHẤT LƯỢNG ẢNH</h3>
- <div class="grid">
-
-  <div class="field">
-   <label>Độ phân giải <output id="scaleOut">2×</output></label>
-   <select id="scale">
-    <option value="1">Kích thước gốc</option>
-    <option value="2" selected>Phóng to 2×</option>
-    <option value="3">Phóng to 3×</option>
-    <option value="4">Phóng to 4×</option>
-   </select>
-  </div>
-
-  <div class="field">
-   <label>Độ sắc nét <output id="sharpOut">140%</output></label>
-   <input id="sharp" type="range" min="0" max="250" value="140">
-  </div>
-
-  <div class="field">
-   <label>Khử nhiễu <output id="noiseOut">8%</output></label>
-   <input id="noise" type="range" min="0" max="35" value="8">
-  </div>
-
-  <div class="field">
-   <label>Tương phản <output id="contrastOut">8%</output></label>
-   <input id="contrast" type="range" min="-15" max="35" value="8">
-  </div>
-
- </div>
- <div class="hint">
-  Bộ lọc làm nét tăng độ rõ đường viền và chi tiết sẵn có.
-  Phóng to không thể tự tái tạo chi tiết đã mất hoàn toàn
-  như công nghệ AI phục hồi ảnh.
- </div>
+<section class="hint" id="qualityNote" style="display:none">
+ Ảnh được tự động phóng lớn 3× và làm sắc nét bằng bộ lọc tăng cường chi tiết.
+ Không có thanh chỉnh tương phản, độ sáng hay các thông số thủ công.
 </section>
 
 <section class="preview" id="preview">
@@ -330,11 +449,13 @@ body {
   <b>Xử lý trên trình duyệt</b>
   <span>Tệp được xử lý cục bộ, không cần tải lên máy chủ của trang.</span>
  </div>
+
  <div class="feature">
   🔎
   <b>Tăng cường hình ảnh</b>
-  <span>Phóng to, tăng nét, giảm nhiễu và tinh chỉnh tương phản.</span>
+  <span>Tự động nâng độ phân giải và tăng độ rõ nét của ảnh.</span>
  </div>
+
  <div class="feature">
   📑
   <b>Xuất tài liệu</b>
@@ -346,6 +467,7 @@ body {
 </div>
 
 <script>
+
 if(window.pdfjsLib) {
  pdfjsLib.GlobalWorkerOptions.workerSrc =
  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -363,6 +485,7 @@ const settings={
   'Kéo thả PDF vào đây hoặc <em>chọn tệp từ máy</em>',
   'Hỗ trợ PDF · Một tệp mỗi lần'
  ],
+
  word:[
   'Chuyển PDF sang Word',
   'Mỗi trang PDF được đặt kín một trang A4 trong tài liệu DOCX.',
@@ -370,9 +493,10 @@ const settings={
   'Kéo thả PDF vào đây hoặc <em>chọn tệp từ máy</em>',
   'Hỗ trợ PDF · Xuất DOCX'
  ],
+
  image:[
-  'Làm nét và nâng cấp ảnh',
-  'Tăng chi tiết, giảm nhiễu và xuất ảnh đã xử lý.',
+  'Làm nét ảnh tự động HD',
+  'Tự động nâng độ phân giải và tăng độ rõ nét, sau đó tải ảnh hoàn chỉnh.',
   '✨','image/*',
   'Kéo thả ảnh vào đây hoặc <em>chọn ảnh từ máy</em>',
   'Hỗ trợ JPG, PNG, WEBP'
@@ -413,11 +537,12 @@ function switchMode(m) {
  $('uploadText').innerHTML=s[4];
  $('uploadHint').textContent=s[5];
  $('uploadIcon').textContent=m==='image'?'🖼️':'☁️';
- $('options').style.display=m==='image'?'block':'none';
+
+ $('qualityNote').style.display=m==='image'?'block':'none';
 
  $('process').disabled=true;
  $('process').textContent=m==='image'
-  ?'✨ Làm nét ảnh ngay'
+  ?'✨ Làm nét ảnh tự động'
   :'Bắt đầu chuyển đổi';
 
  document.querySelectorAll('.tab').forEach(b=>{
@@ -455,7 +580,9 @@ function choose(f) {
 
  status('Đã nhận tệp. Sẵn sàng xử lý.');
 
- if(mode==='image')previewOriginal(f);
+ if(mode==='image') {
+  status('Đã nhận ảnh. Nhấn nút bên dưới để làm nét tự động.');
+ }
 }
 
 $('file').onchange=e=>choose(e.target.files[0]);
@@ -506,7 +633,7 @@ function loadImg(f) {
  });
 }
 
-function showCanvas(src,wmax=1000,hmax=390) {
+function showCanvas(src,wmax=1000,hmax=520) {
  let c=$('canvas');
  let r=Math.min(wmax/src.width,hmax/src.height,1);
 
@@ -521,135 +648,113 @@ function showCanvas(src,wmax=1000,hmax=390) {
  $('preview').style.display='block';
 }
 
-async function previewOriginal(f) {
- try {
-  let im=await loadImg(f);
-  let c=document.createElement('canvas');
-
-  c.width=im.naturalWidth;
-  c.height=im.naturalHeight;
-
-  c.getContext('2d').drawImage(im,0,0);
-
-  showCanvas(c);
- } catch(e) {
-  status(e.message);
- }
-}
-
-['sharp','noise','contrast','scale'].forEach(id=>{
- $(id).addEventListener('input',()=>{
-  let map={
-   sharp:'sharpOut',
-   noise:'noiseOut',
-   contrast:'contrastOut',
-   scale:'scaleOut'
-  };
-
-  $(map[id]).textContent=
-   $(id).value+(id==='scale'?'×':'%');
- });
-});
-
+// GIỚI HẠN GIÁ TRỊ MÀU
 function clamp(v) {
  return Math.max(0,Math.min(255,v));
 }
 
-// BỘ LỌC LÀM NÉT ẢNH UNSHARP MASK
-function enhance(im,scale,sharp,noise,contrast) {
+// TỰ ĐỘNG NÂNG ĐỘ PHÂN GIẢI VÀ LÀM SẮC NÉT
+// Không thay đổi độ sáng hay tương phản tổng thể.
+function enhance(im) {
 
- let w=Math.round(im.naturalWidth*scale);
- let h=Math.round(im.naturalHeight*scale);
+ const scale=3;
 
- if(w*h>18000000) {
-  throw Error('Ảnh sau phóng to vượt 18 megapixel. Hãy giảm mức phóng to.');
+ const w=Math.round(im.naturalWidth*scale);
+ const h=Math.round(im.naturalHeight*scale);
+
+ if(w*h>36000000) {
+  throw Error('Ảnh sau khi nâng cấp vượt 36 megapixel. Hãy chọn ảnh có kích thước nhỏ hơn.');
  }
 
- let c=document.createElement('canvas');
- c.width=w;
- c.height=h;
+ const out=document.createElement('canvas');
+ out.width=w;
+ out.height=h;
 
- let x=c.getContext('2d',{willReadFrequently:true});
+ const ctx=out.getContext('2d',{
+  willReadFrequently:true
+ });
 
- x.imageSmoothingEnabled=true;
- x.imageSmoothingQuality='high';
- x.drawImage(im,0,0,w,h);
+ ctx.imageSmoothingEnabled=true;
+ ctx.imageSmoothingQuality='high';
 
- let id=x.getImageData(0,0,w,h);
- let d=id.data;
- let src=new Uint8ClampedArray(d);
+ ctx.drawImage(im,0,0,w,h);
 
- let amount=sharp/100;
- let denoise=noise/100;
- let con=contrast/100;
+ // Tạo lớp mờ để lấy phần chi tiết cần tăng nét.
+ const blurred=document.createElement('canvas');
 
- for(let y=1;y<h-1;y++) {
-  for(let xx=1;xx<w-1;xx++) {
+ blurred.width=w;
+ blurred.height=h;
 
-   let i=(y*w+xx)*4;
+ const bctx=blurred.getContext('2d');
 
-   for(let k=0;k<3;k++) {
+ bctx.filter='blur(1.35px)';
+ bctx.drawImage(out,0,0);
 
-    let center=src[i+k];
+ const original=ctx.getImageData(0,0,w,h);
+ const soft=bctx.getImageData(0,0,w,h);
 
-    let avg=(
-     src[i-4+k]+src[i+4+k]+
-     src[i-w*4+k]+src[i+w*4+k]+
-     src[i-w*4-4+k]+src[i-w*4+4+k]+
-     src[i+w*4-4+k]+src[i+w*4+4+k]
-    )/8;
+ const a=original.data;
+ const b=soft.data;
 
-    let softened=center+(avg-center)*denoise;
-    let v=softened+(center-avg)*amount;
+ // Unsharp Mask tăng độ sắc nét.
+ const amount=1.18;
+ const threshold=3;
 
-    v=(v-127.5)*(1+con)+127.5;
+ for(let i=0;i<a.length;i+=4) {
 
-    d[i+k]=clamp(v);
+  for(let k=0;k<3;k++) {
+
+   const diff=a[i+k]-b[i+k];
+
+   if(Math.abs(diff)>threshold) {
+    a[i+k]=clamp(a[i+k]+diff*amount);
    }
   }
  }
 
- x.putImageData(id,0,0);
+ ctx.putImageData(original,0,0);
 
- return c;
+ return out;
 }
 
+// XỬ LÝ ẢNH TỰ ĐỘNG
 async function processImage() {
 
- status('Đang đọc ảnh và nâng cấp chi tiết…');
+ status('Đang nâng cấp độ phân giải và làm nét ảnh…');
  progress(10);
 
- let im=await loadImg(file);
+ const im=await loadImg(file);
 
  await new Promise(r=>setTimeout(r,20));
 
- progress(25);
+ progress(30);
 
- let c=enhance(
-  im,
-  Number($('scale').value),
-  Number($('sharp').value),
-  Number($('noise').value),
-  Number($('contrast').value)
- );
+ const c=enhance(im);
 
- showCanvas(c);
  progress(75);
 
- blob=await new Promise(res=>c.toBlob(res,'image/png'));
+ showCanvas(c);
 
- if(!blob)throw Error('Không xuất được ảnh.');
+ blob=await new Promise(res=>{
+  c.toBlob(res,'image/png');
+ });
 
- outName=file.name.replace(/\.[^.]+$/,'')+'-BannaHub-HD.png';
+ if(!blob) {
+  throw Error('Không xuất được ảnh.');
+ }
+
+ outName=file.name.replace(/\.[^.]+$/,'')+'-HD-SieuNet.png';
 
  progress(100);
 
  $('download').style.display='inline-block';
 
- status('Đã xử lý xong! Ảnh HD đã sẵn sàng để tải xuống.',true);
+ status('Hoàn thành! Ảnh đã được nâng cấp và sẵn sàng tải xuống.',true);
 }
 
+// ĐỌC PDF
 async function getPdf() {
+
  if(!window.pdfjsLib) {
   throw Error('Không tải được PDF.js. Hãy kiểm tra Internet.');
  }
@@ -659,9 +764,11 @@ async function getPdf() {
  }).promise;
 }
 
+// TẠO CANVAS TỪ TRANG PDF
 async function pdfPageCanvas(pdf,n,scale) {
 
  let p=await pdf.getPage(n);
+
  let vp=p.getViewport({scale});
 
  let c=document.createElement('canvas');
@@ -685,7 +792,9 @@ async function pdfPpt() {
  }
 
  let pdf=await getPdf();
+
  let p=await pdf.getPage(1);
+
  let v=p.getViewport({scale:1});
 
  let ppt=new PptxGenJS();
@@ -704,6 +813,7 @@ async function pdfPpt() {
  for(let n=1;n<=pdf.numPages;n++) {
 
   status(`Đang tạo slide ${n}/${pdf.numPages}…`);
+
   progress(n/pdf.numPages*85);
 
   let c=await pdfPageCanvas(pdf,n,2);
@@ -712,11 +822,16 @@ async function pdfPpt() {
 
   s.addImage({
    data:c.toDataURL('image/png'),
-   x:0,y:0,w:sw,h:sh
+   x:0,
+   y:0,
+   w:sw,
+   h:sh
   });
  }
 
- blob=await ppt.write({outputType:'blob'});
+ blob=await ppt.write({
+  outputType:'blob'
+ });
 
  outName=file.name.replace(/\.pdf$/i,'')+'.pptx';
 
@@ -727,7 +842,7 @@ async function pdfPpt() {
  status('Đã tạo PowerPoint. Mỗi trang PDF là một slide ảnh.',true);
 }
 
-// PDF SANG WORD - ẢNH PHỦ KÍN TRANG A4
+// PDF SANG WORD
 async function pdfWord() {
 
  if(!window.docx) {
@@ -745,7 +860,6 @@ async function pdfWord() {
 
  let sections=[];
 
- // A4: kích thước ảnh theo tỉ lệ trang
  const pageW=794;
  const pageH=1123;
 
@@ -755,21 +869,28 @@ async function pdfWord() {
  for(let n=1;n<=pdf.numPages;n++) {
 
   status(`Đang dựng trang Word ${n}/${pdf.numPages}…`);
+
   progress(n/pdf.numPages*82);
 
   let c=await pdfPageCanvas(pdf,n,2);
 
-  let data=await new Promise(r=>c.toBlob(r,'image/png'));
+  let data=await new Promise(r=>{
+   c.toBlob(r,'image/png');
+  });
 
-  let bytes=new Uint8Array(await data.arrayBuffer());
+  let bytes=new Uint8Array(
+   await data.arrayBuffer()
+  );
 
   sections.push({
+
    properties:{
     page:{
      size:{
       width:twipW,
       height:twipH
      },
+
      margin:{
       top:0,
       right:0,
@@ -782,7 +903,9 @@ async function pdfWord() {
    },
 
    children:[
+
     new Paragraph({
+
      spacing:{
       before:0,
       after:0,
@@ -790,20 +913,31 @@ async function pdfWord() {
      },
 
      children:[
+
       new ImageRun({
+
        data:bytes,
+
        transformation:{
         width:pageW,
         height:pageH
        }
+
       })
+
      ]
+
     })
+
    ]
+
   });
+
  }
 
- let doc=new Document({sections});
+ let doc=new Document({
+  sections
+ });
 
  blob=await Packer.toBlob(doc);
 
@@ -813,7 +947,7 @@ async function pdfWord() {
 
  $('download').style.display='inline-block';
 
- status('Đã tạo DOCX. Mỗi trang PDF được đặt kín một trang A4, không còn ảnh nhỏ nằm giữa trang.',true);
+ status('Đã tạo DOCX. Mỗi trang PDF được đặt kín một trang A4.',true);
 }
 
 // NÚT XỬ LÝ
@@ -831,23 +965,33 @@ $('process').onclick=async()=>{
  try {
 
   if(mode==='image') {
+
    await processImage();
+
   } else if(mode==='ppt') {
+
    await pdfPpt();
+
   } else {
+
    await pdfWord();
+
   }
 
  } catch(e) {
 
   console.error(e);
+
   status('Lỗi: '+(e.message||'Không thể xử lý.'));
 
  } finally {
 
   busy=false;
+
   $('process').disabled=!file;
+
  }
+
 };
 
 // NÚT TẢI KẾT QUẢ
@@ -856,18 +1000,25 @@ $('download').onclick=()=>{
  if(!blob)return;
 
  let u=URL.createObjectURL(blob);
+
  let a=document.createElement('a');
 
  a.href=u;
  a.download=outName;
 
  document.body.appendChild(a);
+
  a.click();
+
  a.remove();
 
- setTimeout(()=>URL.revokeObjectURL(u),2000);
+ setTimeout(()=>{
+  URL.revokeObjectURL(u);
+ },2000);
+
 };
 
+// KHỞI ĐỘNG
 switchMode('ppt');
 
 </script>
