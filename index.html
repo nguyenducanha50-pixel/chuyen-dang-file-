@@ -1,1026 +1,126 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Banna Hub — Smart File Studio</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+// ======================================
+// BANNA HUB - ULTRA HD SHARP ENGINE
+// ======================================
 
-<style>
-:root {
- --bg:#080d1c;
- --panel:#111a2e;
- --line:#26344f;
- --txt:#eef4ff;
- --muted:#9aa9c2;
- --purple:#8173ff;
- --cyan:#4ed9e8;
- --green:#35d6a3;
-}
-* {box-sizing:border-box}
-
-body {
- margin:0;
- padding:26px 16px 45px;
- min-height:100vh;
- color:var(--txt);
- font-family:Segoe UI,Arial,sans-serif;
- background:
- radial-gradient(ellipse at 10% 0%,#5544b744,transparent 38%),
- radial-gradient(ellipse at 90% 90%,#168c9d22,transparent 34%),
- var(--bg);
-}
-
-.shell {max-width:1050px;margin:auto}
-
-.top {
- display:flex;
- justify-content:space-between;
- align-items:center;
- margin-bottom:28px
-}
-
-.brand {display:flex;gap:12px;align-items:center}
-
-.logo {
- width:44px;
- height:44px;
- border-radius:14px;
- display:grid;
- place-items:center;
- background:linear-gradient(135deg,#7567ff,#36cfe1);
- font-size:23px
-}
-
-.brand b {font-size:17px}
-
-.brand small {
- display:block;
- color:var(--muted);
- font-size:10px;
- letter-spacing:1.5px;
- margin-top:3px
-}
-
-.pill {
- border:1px solid var(--line);
- padding:9px 13px;
- border-radius:99px;
- color:#c6d3e8;
- font-size:12px
-}
-
-.hero {text-align:center;margin:20px 0 28px}
-
-.eyebrow {
- color:#a69aff;
- font-size:11px;
- letter-spacing:2px;
- font-weight:800
-}
-
-.hero h1 {
- font-size:clamp(28px,5vw,43px);
- margin:10px 0
-}
-
-.grad {
- background:linear-gradient(90deg,#b0a6ff,#60e4e8);
- background-clip:text;
- color:transparent
-}
-
-.hero p {
- color:var(--muted);
- font-size:14px;
- line-height:1.6
-}
-
-.card {
- background:linear-gradient(145deg,#15213aee,#0e1729f5);
- border:1px solid var(--line);
- border-radius:24px;
- padding:clamp(16px,3vw,30px);
- box-shadow:0 24px 75px #0007
-}
-
-.tabs {
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:9px;
- margin-bottom:23px
-}
-
-.tab {
- border:1px solid var(--line);
- border-radius:12px;
- background:#ffffff07;
- color:#b8c5d9;
- padding:13px 8px;
- font-weight:700;
- cursor:pointer
-}
-
-.tab.active {
- background:linear-gradient(110deg,#7061ed,#4d8fdf);
- border-color:#8e82ff;
- color:white
-}
-
-.heading {
- display:flex;
- justify-content:space-between;
- align-items:center;
- margin-bottom:16px
-}
-
-.heading h2 {font-size:19px;margin:0 0 6px}
-
-.heading p {
- font-size:12px;
- color:var(--muted);
- margin:0;
- line-height:1.5
-}
-
-.modeicon {
- font-size:25px;
- background:#8173ff20;
- padding:10px;
- border-radius:13px
-}
-
-.drop {
- position:relative;
- border:1.5px dashed #8173ff;
- border-radius:17px;
- min-height:145px;
- display:grid;
- place-items:center;
- text-align:center;
- padding:22px;
- background:#8173ff0b;
- cursor:pointer
-}
-
-.drop.drag {
- border-color:var(--cyan);
- background:#4ed9e812
-}
-
-.drop input {
- position:absolute;
- inset:0;
- width:100%;
- height:100%;
- opacity:0;
- cursor:pointer
-}
-
-.drop strong {font-size:14px}
-
-.drop em {
- font-style:normal;
- color:#a99fff;
- text-decoration:underline
-}
-
-.drop small {
- display:block;
- color:var(--muted);
- margin-top:8px;
- font-size:11px
-}
-
-.file {
- display:none;
- align-items:center;
- justify-content:space-between;
- gap:10px;
- padding:12px;
- margin-top:12px;
- border:1px solid var(--line);
- border-radius:12px;
- background:#ffffff08
-}
-
-.fileName {
- font-size:12px;
- overflow-wrap:anywhere
-}
-
-.fileMeta {
- font-size:10px;
- color:var(--muted);
- margin-top:4px
-}
-
-.remove {
- border:0;
- background:none;
- color:#ff91a1;
- cursor:pointer
-}
-
-.hint {
- font-size:11px;
- color:var(--muted);
- line-height:1.6;
- margin-top:12px
-}
-
-.preview {
- display:none;
- margin-top:16px;
- padding:13px;
- border:1px solid var(--line);
- border-radius:14px;
- background:#080f1f
-}
-
-.previewtop {
- display:flex;
- justify-content:space-between;
- gap:10px;
- font-size:12px;
- margin-bottom:10px
-}
-
-.stage {
- min-height:180px;
- max-height:560px;
- overflow:auto;
- display:grid;
- place-items:center;
- background:#0b1323;
- border-radius:10px;
- padding:10px
-}
-
-.stage canvas {
- max-width:100%;
- max-height:520px;
- height:auto;
- object-fit:contain
-}
-
-.actions {
- display:flex;
- gap:10px;
- margin-top:17px
-}
-
-.btn {
- border:0;
- border-radius:12px;
- padding:14px 17px;
- font-weight:800;
- cursor:pointer
-}
-
-.primary {
- flex:1;
- color:white;
- background:linear-gradient(100deg,#7466f1,#4d98e4)
-}
-
-.download {
- display:none;
- color:#06251e;
- background:linear-gradient(100deg,#43dfb0,#60ded7)
-}
-
-.btn:disabled {
- opacity:.45;
- cursor:not-allowed
-}
-
-.status {
- min-height:22px;
- margin-top:13px;
- font-size:12px;
- color:#b9adff;
- line-height:1.5
-}
-
-.progress {
- height:5px;
- background:#ffffff12;
- border-radius:99px;
- overflow:hidden;
- display:none;
- margin-top:8px
-}
-
-.bar {
- height:100%;
- width:0;
- background:linear-gradient(90deg,#8173ff,#4ed9e8)
-}
-
-.features {
- display:grid;
- grid-template-columns:repeat(3,1fr);
- gap:12px;
- margin-top:17px
-}
-
-.feature {
- border:1px solid var(--line);
- background:#ffffff06;
- padding:14px;
- border-radius:13px
-}
-
-.feature b {
- display:block;
- font-size:12px;
- margin:6px 0
-}
-
-.feature span {
- font-size:10px;
- color:var(--muted);
- line-height:1.5
-}
-
-.foot {
- text-align:center;
- color:#71809a;
- font-size:10px;
- margin-top:20px
-}
-
-@media(max-width:650px) {
- .tabs {grid-template-columns:1fr}
- .features {grid-template-columns:1fr}
- .pill {display:none}
- .actions {flex-direction:column}
-}
-</style>
-</head>
-
-<body>
-<div class="shell">
-
-<header class="top">
- <div class="brand">
-  <div class="logo">⚡</div>
-  <div>
-   <b>BANNA HUB</b>
-   <small>SMART FILE STUDIO</small>
-  </div>
- </div>
- <div class="pill">✦ Công cụ xử lý tài liệu trực tuyến</div>
-</header>
-
-<section class="hero">
- <div class="eyebrow">ALL-IN-ONE DOCUMENT TOOLS</div>
- <h1>Một không gian. <span class="grad">Mọi chuyển đổi.</span></h1>
- <p>Chuyển đổi PDF và nâng cao độ rõ nét hình ảnh ngay trên trình duyệt.</p>
-</section>
-
-<main class="card">
-
-<nav class="tabs">
- <button class="tab active" data-mode="ppt">📊 PDF → PowerPoint</button>
- <button class="tab" data-mode="word">📝 PDF → Word</button>
- <button class="tab" data-mode="image">✨ Làm nét ảnh HD</button>
-</nav>
-
-<div class="heading">
- <div>
-  <h2 id="title">Chuyển PDF sang PowerPoint</h2>
-  <p id="desc">Mỗi trang PDF trở thành một slide, giữ nguyên tỉ lệ trang.</p>
- </div>
- <div class="modeicon" id="icon">📊</div>
-</div>
-
-<label class="drop" id="drop">
- <input type="file" id="file" accept=".pdf">
- <div>
-  <div style="font-size:30px;margin-bottom:8px" id="uploadIcon">☁️</div>
-  <strong id="uploadText">Kéo thả PDF vào đây hoặc <em>chọn tệp từ máy</em></strong>
-  <small id="uploadHint">Hỗ trợ PDF · Một tệp mỗi lần</small>
- </div>
-</label>
-
-<div class="file" id="filebox">
- <div>
-  <div class="fileName" id="filename"></div>
-  <div class="fileMeta" id="filemeta"></div>
- </div>
- <button class="remove" id="remove">✕ Xóa</button>
-</div>
-
-<section class="hint" id="qualityNote" style="display:none">
- Ảnh được tự động phóng lớn 3× và làm sắc nét bằng bộ lọc tăng cường chi tiết.
- Không có thanh chỉnh tương phản, độ sáng hay các thông số thủ công.
-</section>
-
-<section class="preview" id="preview">
- <div class="previewtop">
-  <b>👁 Xem trước</b>
-  <span id="dimensions" style="color:#a99fff"></span>
- </div>
- <div class="stage">
-  <canvas id="canvas"></canvas>
- </div>
-</section>
-
-<div class="actions">
- <button class="btn primary" id="process" disabled>Chọn tệp để bắt đầu</button>
- <button class="btn download" id="download">⬇ Tải kết quả</button>
-</div>
-
-<div class="progress" id="progress">
- <div class="bar" id="bar"></div>
-</div>
-
-<div class="status" id="status" role="status"></div>
-</main>
-
-<section class="features">
- <div class="feature">
-  🛡️
-  <b>Xử lý trên trình duyệt</b>
-  <span>Tệp được xử lý cục bộ, không cần tải lên máy chủ của trang.</span>
- </div>
-
- <div class="feature">
-  🔎
-  <b>Tăng cường hình ảnh</b>
-  <span>Tự động nâng độ phân giải và tăng độ rõ nét của ảnh.</span>
- </div>
-
- <div class="feature">
-  📑
-  <b>Xuất tài liệu</b>
-  <span>PDF sang PowerPoint hoặc Word với ảnh phủ kín từng trang A4.</span>
- </div>
-</section>
-
-<footer class="foot">BANNA HUB · SMART FILE STUDIO</footer>
-</div>
-
-<script>
-
-if(window.pdfjsLib) {
- pdfjsLib.GlobalWorkerOptions.workerSrc =
- 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-}
-
-const $ = id => document.getElementById(id);
-
-let mode='ppt',file=null,blob=null,outName='',busy=false;
-
-const settings={
- ppt:[
-  'Chuyển PDF sang PowerPoint',
-  'Mỗi trang PDF trở thành một slide, giữ nguyên tỉ lệ trang.',
-  '📊','.pdf',
-  'Kéo thả PDF vào đây hoặc <em>chọn tệp từ máy</em>',
-  'Hỗ trợ PDF · Một tệp mỗi lần'
- ],
-
- word:[
-  'Chuyển PDF sang Word',
-  'Mỗi trang PDF được đặt kín một trang A4 trong tài liệu DOCX.',
-  '📝','.pdf',
-  'Kéo thả PDF vào đây hoặc <em>chọn tệp từ máy</em>',
-  'Hỗ trợ PDF · Xuất DOCX'
- ],
-
- image:[
-  'Làm nét ảnh tự động HD',
-  'Tự động nâng độ phân giải và tăng độ rõ nét, sau đó tải ảnh hoàn chỉnh.',
-  '✨','image/*',
-  'Kéo thả ảnh vào đây hoặc <em>chọn ảnh từ máy</em>',
-  'Hỗ trợ JPG, PNG, WEBP'
- ]
-};
-
-function status(t,ok=false) {
- $('status').textContent=t;
- $('status').style.color=ok?'#42dfb0':'#b9adff';
-}
-
-function progress(n,show=true) {
- $('progress').style.display=show?'block':'none';
- $('bar').style.width=n+'%';
-}
-
-function resetOutput() {
- blob=null;
- outName='';
- $('download').style.display='none';
- $('preview').style.display='none';
- progress(0,false);
-}
-
-function switchMode(m) {
- mode=m;
- file=null;
- $('file').value='';
- $('filebox').style.display='none';
- resetOutput();
-
- let s=settings[m];
-
- $('title').textContent=s[0];
- $('desc').textContent=s[1];
- $('icon').textContent=s[2];
- $('file').accept=s[3];
- $('uploadText').innerHTML=s[4];
- $('uploadHint').textContent=s[5];
- $('uploadIcon').textContent=m==='image'?'🖼️':'☁️';
-
- $('qualityNote').style.display=m==='image'?'block':'none';
-
- $('process').disabled=true;
- $('process').textContent=m==='image'
-  ?'✨ Làm nét ảnh tự động'
-  :'Bắt đầu chuyển đổi';
-
- document.querySelectorAll('.tab').forEach(b=>{
-  b.classList.toggle('active',b.dataset.mode===m);
- });
-
- status('');
-}
-
-document.querySelectorAll('.tab').forEach(b=>{
- b.onclick=()=>switchMode(b.dataset.mode);
-});
-
-function choose(f) {
- if(!f)return;
-
- let valid=mode==='image'
-  ?f.type.startsWith('image/')
-  :f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
-
- if(!valid) {
-  status(mode==='image'
-   ?'Hãy chọn tệp ảnh hợp lệ.'
-   :'Chế độ này chỉ nhận tệp PDF.');
-  return;
- }
-
- file=f;
- resetOutput();
-
- $('filebox').style.display='flex';
- $('filename').textContent=f.name;
- $('filemeta').textContent=(f.size/1048576).toFixed(2)+' MB';
- $('process').disabled=false;
-
- status('Đã nhận tệp. Sẵn sàng xử lý.');
-
- if(mode==='image') {
-  status('Đã nhận ảnh. Nhấn nút bên dưới để làm nét tự động.');
- }
-}
-
-$('file').onchange=e=>choose(e.target.files[0]);
-
-$('remove').onclick=()=>{
- file=null;
- $('file').value='';
- $('filebox').style.display='none';
- resetOutput();
- $('process').disabled=true;
- status('Đã xóa tệp.');
-};
-
-['dragover','dragenter'].forEach(e=>{
- $('drop').addEventListener(e,x=>{
-  x.preventDefault();
-  $('drop').classList.add('drag');
- });
-});
-
-['dragleave','drop'].forEach(e=>{
- $('drop').addEventListener(e,x=>{
-  x.preventDefault();
-  $('drop').classList.remove('drag');
- });
-});
-
-$('drop').addEventListener('drop',e=>{
- choose(e.dataTransfer.files[0]);
-});
-
-function loadImg(f) {
- return new Promise((res,rej)=>{
-  let u=URL.createObjectURL(f);
-  let im=new Image();
-
-  im.onload=()=>{
-   URL.revokeObjectURL(u);
-   res(im);
-  };
-
-  im.onerror=()=>{
-   URL.revokeObjectURL(u);
-   rej(Error('Không đọc được ảnh.'));
-  };
-
-  im.src=u;
- });
-}
-
-function showCanvas(src,wmax=1000,hmax=520) {
- let c=$('canvas');
- let r=Math.min(wmax/src.width,hmax/src.height,1);
-
- c.width=Math.max(1,Math.round(src.width*r));
- c.height=Math.max(1,Math.round(src.height*r));
-
- c.getContext('2d').drawImage(src,0,0,c.width,c.height);
-
- $('dimensions').textContent=
-  src.width+' × '+src.height+' px';
-
- $('preview').style.display='block';
-}
-
-// GIỚI HẠN GIÁ TRỊ MÀU
 function clamp(v) {
- return Math.max(0,Math.min(255,v));
+    return Math.max(0, Math.min(255, v));
 }
 
-// TỰ ĐỘNG NÂNG ĐỘ PHÂN GIẢI VÀ LÀM SẮC NÉT
-// Không thay đổi độ sáng hay tương phản tổng thể.
+// NÂNG CẤP ẢNH SIÊU NÉT
 function enhance(im) {
 
- const scale=3;
+    const scale = 4;
 
- const w=Math.round(im.naturalWidth*scale);
- const h=Math.round(im.naturalHeight*scale);
+    const w = Math.round(im.naturalWidth * scale);
+    const h = Math.round(im.naturalHeight * scale);
 
- if(w*h>36000000) {
-  throw Error('Ảnh sau khi nâng cấp vượt 36 megapixel. Hãy chọn ảnh có kích thước nhỏ hơn.');
- }
+    if (w * h > 40000000) {
+        throw Error("Ảnh vượt giới hạn 40 megapixel.");
+    }
 
- const out=document.createElement('canvas');
- out.width=w;
- out.height=h;
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
 
- const ctx=out.getContext('2d',{
-  willReadFrequently:true
- });
+    const ctx = canvas.getContext("2d", {
+        willReadFrequently: true
+    });
 
- ctx.imageSmoothingEnabled=true;
- ctx.imageSmoothingQuality='high';
+    // Phóng to chất lượng cao
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(im, 0, 0, w, h);
 
- ctx.drawImage(im,0,0,w,h);
+    // Lấy dữ liệu ảnh gốc sau phóng to
+    const original = ctx.getImageData(0, 0, w, h);
+    const pixels = original.data;
 
- // Tạo lớp mờ để lấy phần chi tiết cần tăng nét.
- const blurred=document.createElement('canvas');
+    // Tạo hai lớp làm mờ để tăng chi tiết
+    function makeBlur(radius) {
 
- blurred.width=w;
- blurred.height=h;
+        const temp = document.createElement("canvas");
+        temp.width = w;
+        temp.height = h;
 
- const bctx=blurred.getContext('2d');
+        const tctx = temp.getContext("2d");
 
- bctx.filter='blur(1.35px)';
- bctx.drawImage(out,0,0);
+        tctx.filter = `blur(${radius}px)`;
+        tctx.drawImage(canvas, 0, 0);
 
- const original=ctx.getImageData(0,0,w,h);
- const soft=bctx.getImageData(0,0,w,h);
+        return tctx.getImageData(0, 0, w, h).data;
+    }
 
- const a=original.data;
- const b=soft.data;
+    const blurSmall = makeBlur(1.5);
+    const blurLarge = makeBlur(3);
 
- // Unsharp Mask tăng độ sắc nét.
- const amount=1.18;
- const threshold=3;
+    // Tăng độ sắc nét theo hai cấp độ
+    for (let i = 0; i < pixels.length; i += 4) {
 
- for(let i=0;i<a.length;i+=4) {
+        for (let k = 0; k < 3; k++) {
 
-  for(let k=0;k<3;k++) {
+            const center = pixels[i + k];
 
-   const diff=a[i+k]-b[i+k];
+            const detail1 = center - blurSmall[i + k];
+            const detail2 = center - blurLarge[i + k];
 
-   if(Math.abs(diff)>threshold) {
-    a[i+k]=clamp(a[i+k]+diff*amount);
-   }
-  }
- }
+            let result = center;
 
- ctx.putImageData(original,0,0);
+            if (Math.abs(detail1) > 2) {
+                result += detail1 * 1.5;
+            }
 
- return out;
+            if (Math.abs(detail2) > 4) {
+                result += detail2 * 0.45;
+            }
+
+            pixels[i + k] = clamp(result);
+        }
+    }
+
+    ctx.putImageData(original, 0, 0);
+
+    return canvas;
 }
 
-// XỬ LÝ ẢNH TỰ ĐỘNG
+// XỬ LÝ VÀ XUẤT ẢNH
 async function processImage() {
 
- status('Đang nâng cấp độ phân giải và làm nét ảnh…');
- progress(10);
+    status("Đang nâng cấp ảnh Ultra HD...");
+    progress(10);
 
- const im=await loadImg(file);
+    const im = await loadImg(file);
 
- await new Promise(r=>setTimeout(r,20));
+    progress(25);
 
- progress(30);
+    await new Promise(resolve =>
+        setTimeout(resolve, 30)
+    );
 
- const c=enhance(im);
+    const result = enhance(im);
 
- progress(75);
+    progress(75);
 
- showCanvas(c);
+    showCanvas(result);
 
- blob=await new Promise(res=>{
-  c.toBlob(res,'image/png');
- });
+    blob = await new Promise(resolve =>
+        result.toBlob(resolve, "image/png")
+    );
 
- if(!blob) {
-  throw Error('Không xuất được ảnh.');
- }
-
- outName=file.name.replace(/\.[^.]+$/,'')+'-HD-SieuNet.png';
-
- progress(100);
-
- $('download').style.display='inline-block';
-
- status('Hoàn thành! Ảnh đã được nâng cấp và sẵn sàng tải xuống.',true);
-}
-
-// ĐỌC PDF
-async function getPdf() {
-
- if(!window.pdfjsLib) {
-  throw Error('Không tải được PDF.js. Hãy kiểm tra Internet.');
- }
-
- return pdfjsLib.getDocument({
-  data:await file.arrayBuffer()
- }).promise;
-}
-
-// TẠO CANVAS TỪ TRANG PDF
-async function pdfPageCanvas(pdf,n,scale) {
-
- let p=await pdf.getPage(n);
-
- let vp=p.getViewport({scale});
-
- let c=document.createElement('canvas');
-
- c.width=Math.ceil(vp.width);
- c.height=Math.ceil(vp.height);
-
- await p.render({
-  canvasContext:c.getContext('2d'),
-  viewport:vp
- }).promise;
-
- return c;
-}
-
-// PDF SANG POWERPOINT
-async function pdfPpt() {
-
- if(!window.PptxGenJS) {
-  throw Error('Không tải được thư viện PowerPoint.');
- }
-
- let pdf=await getPdf();
-
- let p=await pdf.getPage(1);
-
- let v=p.getViewport({scale:1});
-
- let ppt=new PptxGenJS();
-
- let sw=10;
- let sh=sw*v.height/v.width;
-
- ppt.defineLayout({
-  name:'PDF_PAGE',
-  width:sw,
-  height:sh
- });
-
- ppt.layout='PDF_PAGE';
-
- for(let n=1;n<=pdf.numPages;n++) {
-
-  status(`Đang tạo slide ${n}/${pdf.numPages}…`);
-
-  progress(n/pdf.numPages*85);
-
-  let c=await pdfPageCanvas(pdf,n,2);
-
-  let s=ppt.addSlide();
-
-  s.addImage({
-   data:c.toDataURL('image/png'),
-   x:0,
-   y:0,
-   w:sw,
-   h:sh
-  });
- }
-
- blob=await ppt.write({
-  outputType:'blob'
- });
-
- outName=file.name.replace(/\.pdf$/i,'')+'.pptx';
-
- progress(100);
-
- $('download').style.display='inline-block';
-
- status('Đã tạo PowerPoint. Mỗi trang PDF là một slide ảnh.',true);
-}
-
-// PDF SANG WORD
-async function pdfWord() {
-
- if(!window.docx) {
-  throw Error('Không tải được thư viện DOCX. Hãy kiểm tra Internet.');
- }
-
- let pdf=await getPdf();
-
- const {
-  Document,
-  Packer,
-  Paragraph,
-  ImageRun
- }=window.docx;
-
- let sections=[];
-
- const pageW=794;
- const pageH=1123;
-
- const twipW=11906;
- const twipH=16838;
-
- for(let n=1;n<=pdf.numPages;n++) {
-
-  status(`Đang dựng trang Word ${n}/${pdf.numPages}…`);
-
-  progress(n/pdf.numPages*82);
-
-  let c=await pdfPageCanvas(pdf,n,2);
-
-  let data=await new Promise(r=>{
-   c.toBlob(r,'image/png');
-  });
-
-  let bytes=new Uint8Array(
-   await data.arrayBuffer()
-  );
-
-  sections.push({
-
-   properties:{
-    page:{
-     size:{
-      width:twipW,
-      height:twipH
-     },
-
-     margin:{
-      top:0,
-      right:0,
-      bottom:0,
-      left:0,
-      header:0,
-      footer:0
-     }
+    if (!blob) {
+        throw Error("Không thể xuất ảnh.");
     }
-   },
 
-   children:[
+    outName =
+        file.name.replace(/\.[^.]+$/, "") +
+        "-BANNA-ULTRA-HD.png";
 
-    new Paragraph({
+    progress(100);
 
-     spacing:{
-      before:0,
-      after:0,
-      line:1
-     },
+    $("download").style.display = "inline-block";
 
-     children:[
-
-      new ImageRun({
-
-       data:bytes,
-
-       transformation:{
-        width:pageW,
-        height:pageH
-       }
-
-      })
-
-     ]
-
-    })
-
-   ]
-
-  });
-
- }
-
- let doc=new Document({
-  sections
- });
-
- blob=await Packer.toBlob(doc);
-
- outName=file.name.replace(/\.pdf$/i,'')+'.docx';
-
- progress(100);
-
- $('download').style.display='inline-block';
-
- status('Đã tạo DOCX. Mỗi trang PDF được đặt kín một trang A4.',true);
+    status(
+        "Hoàn thành! Ảnh Ultra HD đã sẵn sàng tải xuống.",
+        true
+    );
 }
-
-// NÚT XỬ LÝ
-$('process').onclick=async()=>{
-
- if(!file||busy)return;
-
- busy=true;
-
- $('process').disabled=true;
- $('download').style.display='none';
-
- resetOutput();
-
- try {
-
-  if(mode==='image') {
-
-   await processImage();
-
-  } else if(mode==='ppt') {
-
-   await pdfPpt();
-
-  } else {
-
-   await pdfWord();
-
-  }
-
- } catch(e) {
-
-  console.error(e);
-
-  status('Lỗi: '+(e.message||'Không thể xử lý.'));
-
- } finally {
-
-  busy=false;
-
-  $('process').disabled=!file;
-
- }
-
-};
-
-// NÚT TẢI KẾT QUẢ
-$('download').onclick=()=>{
-
- if(!blob)return;
-
- let u=URL.createObjectURL(blob);
-
- let a=document.createElement('a');
-
- a.href=u;
- a.download=outName;
-
- document.body.appendChild(a);
-
- a.click();
-
- a.remove();
-
- setTimeout(()=>{
-  URL.revokeObjectURL(u);
- },2000);
-
-};
-
-// KHỞI ĐỘNG
-switchMode('ppt');
-
-</script>
-</body>
-</html>
