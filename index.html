@@ -87,7 +87,7 @@
             word-break: break-all;
         }
 
-        /* Khu vực xem trước kết quả AI */
+        /* Khu vực xem trước & chỉnh nét dành riêng cho tính năng Làm Nét Ảnh */
         #imageWorkspace {
             display: none;
             margin-bottom: 15px;
@@ -105,13 +105,27 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
         #imageCanvas {
             max-width: 100%;
             max-height: 320px;
             height: auto;
             border-radius: 4px;
+        }
+        .slider-control {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .slider-control input[type="range"] {
+            width: 100%;
+            accent-color: #4f46e5;
+            cursor: pointer;
         }
 
         /* Nút hành động */
@@ -131,6 +145,7 @@
         .btn-submit:active { transform: scale(0.98); }
         .btn-submit:disabled { background: #9ca3af; cursor: not-allowed; transform: none; }
 
+        /* Nút Tải Xuống thủ công */
         .btn-download {
             width: 100%;
             background: linear-gradient(135deg, #059669 0%, #10b981 100%);
@@ -169,7 +184,7 @@
             <button class="tab-btn active" onclick="switchMode('pdf-to-ppt', event)">PDF ➔ PowerPoint</button>
             <button class="tab-btn" onclick="switchMode('pdf-to-word', event)">PDF ➔ Word</button>
             <button class="tab-btn" onclick="switchMode('doc-to-pdf', event)">Word/PPT ➔ PDF</button>
-            <button class="tab-btn" onclick="switchMode('img-upscale', event)">✨ Banna Hub AI HD</button>
+            <button class="tab-btn" onclick="switchMode('img-upscale', event)">✨ Làm Nét Ảnh HD</button>
         </div>
 
         <!-- Khung Upload -->
@@ -180,10 +195,14 @@
 
         <div id="fileName"></div>
 
-        <!-- Khu vực hiển thị kết quả sau khi AI xử lý tự động -->
+        <!-- Khu vực xem trước & chỉnh nét dành riêng cho tính năng Làm Nét Ảnh -->
         <div id="imageWorkspace">
             <div class="preview-box">
                 <canvas id="imageCanvas"></canvas>
+            </div>
+            <div class="slider-control">
+                <label for="sharpnessRange">Mức độ tăng nét & phóng to Full HD: <span id="valDisplay" style="color:#4f46e5;">1.5x</span></label>
+                <input type="range" id="sharpnessRange" min="1" max="3" step="0.1" value="1.5" />
             </div>
         </div>
         
@@ -202,6 +221,7 @@
         let selectedFile = null;
         let generatedBlob = null;
         let outputFileName = "";
+        let originalImageObj = null;
 
         const fileInput = document.getElementById('fileInput');
         const convertBtn = document.getElementById('convertBtn');
@@ -214,10 +234,13 @@
         const imageWorkspace = document.getElementById('imageWorkspace');
         const imageCanvas = document.getElementById('imageCanvas');
         const imageCtx = imageCanvas.getContext('2d');
+        const sharpnessRange = document.getElementById('sharpnessRange');
+        const valDisplay = document.getElementById('valDisplay');
 
         function switchMode(mode, event) {
             currentMode = mode;
             selectedFile = null;
+            originalImageObj = null;
             fileInput.value = "";
             fileNameDiv.textContent = "";
             convertBtn.disabled = true;
@@ -244,7 +267,7 @@
                 uploadLabel.innerHTML = '📂 Kéo thả file Word/PPT vào đây hoặc <span>chọn file từ máy</span>';
                 convertBtn.style.display = "block";
             } else if (mode === 'img-upscale') {
-                subDesc.textContent = "Banna Hub AI Ultra: Tự động chạy quy trình xử lý chuyên sâu, ép nét tối đa cho ảnh thí nghiệm.";
+                subDesc.textContent = "Tăng độ phân giải lên chuẩn Full HD siêu nét, giữ trọn vẹn mọi chi tiết ảnh gốc.";
                 fileInput.accept = "image/*";
                 uploadLabel.innerHTML = '🖼️ Kéo thả hình ảnh vào đây hoặc <span>chọn ảnh từ máy</span>';
                 convertBtn.style.display = "none";
@@ -259,70 +282,210 @@
                 statusDiv.textContent = "";
 
                 if (currentMode === 'img-upscale') {
-                    runAutomaticAIProcess(selectedFile);
+                    loadAndUpscaleImage(selectedFile);
                 } else {
                     convertBtn.disabled = false;
                 }
             }
         });
 
-        // Tự động chạy quy trình load -> xử lý AI mạnh mẽ -> xuất file
-        async function runAutomaticAIProcess(file) {
-            imageWorkspace.style.display = "block";
+        sharpnessRange.addEventListener('input', function() {
+            valDisplay.innerText = this.value + 'x';
+            if (originalImageObj && currentMode === 'img-upscale') {
+                processAndDrawImage();
+            }
+        });
+
+        async function startConversion() {
+            if (!selectedFile) return;
+
+            convertBtn.disabled = true;
             downloadBtn.style.display = "none";
-            
             statusDiv.style.color = "#4f46e5";
-            statusDiv.textContent = "🔄 Đang khởi tạo Banna Hub AI Engine...";
-            await sleep(400);
 
-            statusDiv.textContent = "🔍 Đang phân tích cấu trúc vạch màu & khử nhiễu nền mờ...";
-            await sleep(600);
+            try {
+                if (currentMode === 'pdf-to-ppt') {
+                    await convertPdfToPptx();
+                } else if (currentMode === 'pdf-to-word') {
+                    await convertPdfToWord();
+                } else if (currentMode === 'doc-to-pdf') {
+                    await convertDocToPdf();
+                }
+            } catch (error) {
+                console.error(error);
+                statusDiv.style.color = "#dc2626";
+                statusDiv.textContent = "❌ Lỗi xử lý: " + (error.message || "Vui lòng kiểm tra lại file đầu vào.");
+                convertBtn.disabled = false;
+            }
+        }
 
-            statusDiv.textContent = "⚡ Đang tăng cường biên sắc nét tối đa & cân bằng tương phản...";
-            await sleep(800);
+        async function convertPdfToPptx() {
+            statusDiv.textContent = "Đang đọc file PDF...";
+            const arrayBuffer = await selectedFile.arrayBuffer();
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdfDoc = await loadingTask.promise;
+            const numPages = pdfDoc.numPages;
 
+            let pptx = new PptxGenJS();
+            
+            const firstPage = await pdfDoc.getPage(1);
+            const originalViewport = firstPage.getViewport({ scale: 1.0 });
+            const pdfWidth = originalViewport.width;
+            const pdfHeight = originalViewport.height;
+            const pdfRatio = pdfWidth / pdfHeight;
+
+            const slideWidth = 7.5;
+            const slideHeight = slideWidth / pdfRatio;
+
+            pptx.defineLayout({ name: 'EXACT_PDF_LAYOUT', width: slideWidth, height: slideHeight });
+            pptx.layout = 'EXACT_PDF_LAYOUT';
+
+            for (let i = 1; i <= numPages; i++) {
+                statusDiv.textContent = `Đang xử lý trang ${i} / ${numPages}...`;
+                const page = await pdfDoc.getPage(i);
+                
+                const viewport = page.getViewport({ scale: 2.0 });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+                const imgData = canvas.toDataURL('image/png');
+
+                let slide = pptx.addSlide();
+                slide.background = { color: "FFFFFF" };
+                
+                slide.addImage({
+                    data: imgData,
+                    x: 0,
+                    y: 0,
+                    w: slideWidth,
+                    h: slideHeight
+                });
+            }
+
+            statusDiv.textContent = "Đang tạo file PowerPoint...";
+            outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".pptx";
+            generatedBlob = await pptx.write({ outputType: 'blob' });
+            
+            finalizeSuccess("Chuyển đổi sang PowerPoint thành công!");
+        }
+
+        async function convertPdfToWord() {
+            statusDiv.textContent = "Đang đọc file PDF để chuyển sang Word...";
+            const arrayBuffer = await selectedFile.arrayBuffer();
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdfDoc = await loadingTask.promise;
+            const numPages = pdfDoc.numPages;
+
+            let imagesHtml = "";
+
+            for (let i = 1; i <= numPages; i++) {
+                statusDiv.textContent = `Đang xử lý trang ${i} / ${numPages}...`;
+                const page = await pdfDoc.getPage(i);
+                
+                const viewport = page.getViewport({ scale: 2.0 });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                await page.render({ canvasContext: context, viewport: viewport }).promise;
+                const imgData = canvas.toDataURL('image/png');
+
+                imagesHtml += `<div style="text-align: center; page-break-after: always; margin-bottom: 20px;">
+                    <img src="${imgData}" style="width: 100%; max-width: 700px; height: auto;" />
+                </div>`;
+            }
+
+            statusDiv.textContent = "Đang tạo file Word...";
+            const htmlContent = `
+                <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+                <head><meta charset='utf-8'><title>Export to Word</title></head>
+                <body style='background-color: #ffffff; padding: 20px; text-align: center;'>
+                    ${imagesHtml}
+                </body>
+                </html>`;
+
+            generatedBlob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+            outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + ".doc";
+            
+            finalizeSuccess("Chuyển đổi sang Word thành công!");
+        }
+
+        async function convertDocToPdf() {
+            statusDiv.textContent = "Đang đọc nội dung file Word...";
+            const arrayBuffer = await selectedFile.arrayBuffer();
+            const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
+            let text = result.value;
+
+            let printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>${selectedFile.name}</title>
+                    <style>
+                        body { font-family: 'Times New Roman', Times, serif; padding: 40px; line-height: 1.6; font-size: 14pt; white-space: pre-wrap; }
+                    </style>
+                </head>
+                <body>${text}</body>
+                </html>
+            `);
+            printWindow.document.close();
+            
+            statusDiv.style.color = "#059669";
+            statusDiv.textContent = "Đã mở cửa sổ bản in! Bạn hãy chọn 'Lưu dưới dạng PDF' (Save as PDF).";
+            convertBtn.disabled = false;
+        }
+
+        function loadAndUpscaleImage(file) {
+            statusDiv.style.color = "#4f46e5";
+            statusDiv.textContent = "Đang xử lý làm nét ảnh Full HD...";
+            
             const reader = new FileReader();
             reader.onload = function(event) {
-                const img = new Image();
-                img.onload = function() {
-                    const targetWidth = Math.min(img.width * 3, 3840);
-                    const targetHeight = Math.min(img.height * 3, 2160);
-
-                    imageCanvas.width = targetWidth;
-                    imageCanvas.height = targetHeight;
-
-                    imageCtx.imageSmoothingEnabled = true;
-                    imageCtx.imageSmoothingQuality = 'high';
-                    imageCtx.drawImage(img, 0, 0, targetWidth, targetHeight);
-
-                    // Bộ lọc ép nét cực mạnh để tách bạch màu sắc
-                    applyMaxPowerSharpenFilter(imageCtx, targetWidth, targetHeight);
-
-                    imageCanvas.toBlob(function(blob) {
-                        generatedBlob = blob;
-                        outputFileName = file.name.replace(/\.[^/.]+$/, "") + "-BannaHub-UltraSharp.png";
-                        
-                        statusDiv.style.color = "#059669";
-                        statusDiv.textContent = `✨ Xử lý hoàn tất (${Math.round(targetWidth)}x${Math.round(targetHeight)}px)! Ảnh đã được làm rõ nét tối đa.`;
-                        downloadBtn.style.display = "block";
-                    }, 'image/png');
+                originalImageObj = new Image();
+                originalImageObj.onload = function() {
+                    imageWorkspace.style.display = "block";
+                    processAndDrawImage();
                 };
-                img.src = event.target.result;
+                originalImageObj.src = event.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+        function processAndDrawImage() {
+            if (!originalImageObj) return;
+
+            const scale = parseFloat(sharpnessRange.value);
+            const targetWidth = Math.min(originalImageObj.width * scale, 1920);
+            const targetHeight = Math.min(originalImageObj.height * scale, 1080);
+
+            imageCanvas.width = targetWidth;
+            imageCanvas.height = targetHeight;
+
+            imageCtx.imageSmoothingEnabled = true;
+            imageCtx.imageSmoothingQuality = 'high';
+            imageCtx.drawImage(originalImageObj, 0, 0, targetWidth, targetHeight);
+
+            applyAdvancedAIelikeSharpen(imageCtx, targetWidth, targetHeight, sharpnessRange.value);
+
+            imageCanvas.toBlob(function(blob) {
+                generatedBlob = blob;
+                outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + "-HD-SuperSharp.png";
+                finalizeSuccess(`Đã tối ưu nét ảnh siêu cấp (${Math.round(targetWidth)}x${Math.round(targetHeight)}px)!`);
+            }, 'image/png');
         }
 
-        // Thuật toán ép nét cường độ cao giúp làm nổi bật các chi tiết mờ
-        function applyMaxPowerSharpenFilter(context, width, height) {
+        function applyAdvancedAIelikeSharpen(context, width, height, strengthFactor) {
             const imageData = context.getImageData(0, 0, width, height);
             const src = imageData.data;
             const w = imageData.width;
             const h = imageData.height;
-            const intensity = 1.6; // Đẩy hệ số nét lên cực đại
+            
+            const outputData = new Uint8ClampedArray(src);
+            const intensity = 0.35 * parseFloat(strengthFactor);
 
             for (let y = 1; y < h - 1; y++) {
                 for (let x = 1; x < w - 1; x++) {
@@ -336,42 +499,27 @@
                         const right = src[(y * w + (x + 1)) * 4 + c];
 
                         const blurred = (top + bottom + left + right) / 4;
-                        let newVal = current + (current - blurred) * intensity;
+                        const edgeEnhance = current + (current - blurred) * intensity;
 
-                        // Tăng độ tương phản sâu để tách rõ các tầng màu
-                        if (newVal > 128) {
-                            newVal = 128 + (newVal - 128) * 1.35;
-                        } else {
-                            newVal = 128 - (128 - newVal) * 1.35;
-                        }
-
-                        src[idx + c] = Math.min(255, Math.max(0, newVal));
+                        outputData[idx + c] = Math.min(255, Math.max(0, edgeEnhance));
                     }
+                    outputData[idx + 3] = src[idx + 3];
                 }
             }
+
+            for (let i = 0; i < src.length; i++) {
+                src[i] = outputData[i];
+            }
+            
             context.putImageData(imageData, 0, 0);
         }
 
-        async function startConversion() {
-            if (!selectedFile) return;
-            convertBtn.disabled = true;
-            downloadBtn.style.display = "none";
-            statusDiv.style.color = "#4f46e5";
-
-            try {
-                if (currentMode === 'pdf-to-ppt') await convertPdfToPptx();
-                else if (currentMode === 'pdf-to-word') await convertPdfToWord();
-                else if (currentMode === 'doc-to-pdf') await convertDocToPdf();
-            } catch (error) {
-                statusDiv.style.color = "#dc2626";
-                statusDiv.textContent = "❌ Lỗi xử lý: " + (error.message || "Vui lòng kiểm tra lại file.");
-                convertBtn.disabled = false;
-            }
+        function finalizeSuccess(msg) {
+            statusDiv.style.color = "#059669";
+            statusDiv.textContent = "✨ " + msg + " Bấm nút bên dưới để tải file về máy.";
+            downloadBtn.style.display = "block";
+            convertBtn.disabled = false;
         }
-
-        async function convertPdfToPptx() {}
-        async function convertPdfToWord() {}
-        async function convertDocToPdf() {}
 
         function triggerDownload() {
             if (!generatedBlob) return;
