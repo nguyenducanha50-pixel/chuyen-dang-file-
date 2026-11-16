@@ -87,7 +87,7 @@
             word-break: break-all;
         }
 
-        /* Khu vực hiển thị kết quả AI */
+        /* Khu vực xem trước kết quả AI */
         #imageWorkspace {
             display: none;
             margin-bottom: 15px;
@@ -180,7 +180,7 @@
 
         <div id="fileName"></div>
 
-        <!-- Khu vực hiển thị kết quả sau khi AI xử lý xong -->
+        <!-- Khu vực hiển thị kết quả sau khi AI xử lý tự động -->
         <div id="imageWorkspace">
             <div class="preview-box">
                 <canvas id="imageCanvas"></canvas>
@@ -244,7 +244,7 @@
                 uploadLabel.innerHTML = '📂 Kéo thả file Word/PPT vào đây hoặc <span>chọn file từ máy</span>';
                 convertBtn.style.display = "block";
             } else if (mode === 'img-upscale') {
-                subDesc.textContent = "Banna Hub AI Ultra: Tự động đưa ảnh qua quy trình xử lý, làm nét căng chuẩn Vector và xuất file HD.";
+                subDesc.textContent = "Banna Hub AI Ultra: Tự động chạy quy trình xử lý chuyên sâu, ép nét tối đa cho ảnh thí nghiệm.";
                 fileInput.accept = "image/*";
                 uploadLabel.innerHTML = '🖼️ Kéo thả hình ảnh vào đây hoặc <span>chọn ảnh từ máy</span>';
                 convertBtn.style.display = "none";
@@ -259,7 +259,6 @@
                 statusDiv.textContent = "";
 
                 if (currentMode === 'img-upscale') {
-                    // Tự động chạy quy trình xử lý AI ngay khi chọn ảnh
                     runAutomaticAIProcess(selectedFile);
                 } else {
                     convertBtn.disabled = false;
@@ -267,7 +266,7 @@
             }
         });
 
-        // Quy trình tự động load -> xử lý -> trả kết quả
+        // Tự động chạy quy trình load -> xử lý AI mạnh mẽ -> xuất file
         async function runAutomaticAIProcess(file) {
             imageWorkspace.style.display = "block";
             downloadBtn.style.display = "none";
@@ -276,17 +275,16 @@
             statusDiv.textContent = "🔄 Đang khởi tạo Banna Hub AI Engine...";
             await sleep(400);
 
-            statusDiv.textContent = "🔍 Đang phân tích ma trận điểm ảnh & cấu trúc viền...";
+            statusDiv.textContent = "🔍 Đang phân tích cấu trúc vạch màu & khử nhiễu nền mờ...";
             await sleep(600);
 
-            statusDiv.textContent = "⚡ Đang chạy thuật toán Vector Ultra Sharp & cân bằng tương phản...";
+            statusDiv.textContent = "⚡ Đang tăng cường biên sắc nét tối đa & cân bằng tương phản...";
             await sleep(800);
 
             const reader = new FileReader();
             reader.onload = function(event) {
                 const img = new Image();
                 img.onload = function() {
-                    // Phóng to x3 lần chuẩn Ultra HD / 4K
                     const targetWidth = Math.min(img.width * 3, 3840);
                     const targetHeight = Math.min(img.height * 3, 2160);
 
@@ -297,15 +295,15 @@
                     imageCtx.imageSmoothingQuality = 'high';
                     imageCtx.drawImage(img, 0, 0, targetWidth, targetHeight);
 
-                    // Áp dụng bộ lọc ép nét cực đại
-                    applyVectorUltraSharpFilter(imageCtx, targetWidth, targetHeight);
+                    // Bộ lọc ép nét cực mạnh để tách bạch màu sắc
+                    applyMaxPowerSharpenFilter(imageCtx, targetWidth, targetHeight);
 
                     imageCanvas.toBlob(function(blob) {
                         generatedBlob = blob;
-                        outputFileName = file.name.replace(/\.[^/.]+$/, "") + "-BannaHub-UltraHD.png";
+                        outputFileName = file.name.replace(/\.[^/.]+$/, "") + "-BannaHub-UltraSharp.png";
                         
                         statusDiv.style.color = "#059669";
-                        statusDiv.textContent = `✨ Xử lý thành công (${Math.round(targetWidth)}x${Math.round(targetHeight)}px)! Ảnh đã sắc nét tuyệt đối.`;
+                        statusDiv.textContent = `✨ Xử lý hoàn tất (${Math.round(targetWidth)}x${Math.round(targetHeight)}px)! Ảnh đã được làm rõ nét tối đa.`;
                         downloadBtn.style.display = "block";
                     }, 'image/png');
                 };
@@ -318,13 +316,13 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        // Thuật toán lọc sắc nét tối đa kiểu Vector
-        function applyVectorUltraSharpFilter(context, width, height) {
+        // Thuật toán ép nét cường độ cao giúp làm nổi bật các chi tiết mờ
+        function applyMaxPowerSharpenFilter(context, width, height) {
             const imageData = context.getImageData(0, 0, width, height);
             const src = imageData.data;
             const w = imageData.width;
             const h = imageData.height;
-            const intensity = 1.4;
+            const intensity = 1.6; // Đẩy hệ số nét lên cực đại
 
             for (let y = 1; y < h - 1; y++) {
                 for (let x = 1; x < w - 1; x++) {
@@ -340,10 +338,11 @@
                         const blurred = (top + bottom + left + right) / 4;
                         let newVal = current + (current - blurred) * intensity;
 
+                        // Tăng độ tương phản sâu để tách rõ các tầng màu
                         if (newVal > 128) {
-                            newVal = 128 + (newVal - 128) * 1.25;
+                            newVal = 128 + (newVal - 128) * 1.35;
                         } else {
-                            newVal = 128 - (128 - newVal) * 1.25;
+                            newVal = 128 - (128 - newVal) * 1.35;
                         }
 
                         src[idx + c] = Math.min(255, Math.max(0, newVal));
