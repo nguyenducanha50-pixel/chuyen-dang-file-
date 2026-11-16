@@ -87,7 +87,7 @@
             word-break: break-all;
         }
 
-        /* Khu vực xem trước & chỉnh nét dành riêng cho tính năng Làm Nét Ảnh */
+        /* Khu vực xem trước & chỉnh nét */
         #imageWorkspace {
             display: none;
             margin-bottom: 15px;
@@ -145,7 +145,6 @@
         .btn-submit:active { transform: scale(0.98); }
         .btn-submit:disabled { background: #9ca3af; cursor: not-allowed; transform: none; }
 
-        /* Nút Tải Xuống thủ công */
         .btn-download {
             width: 100%;
             background: linear-gradient(135deg, #059669 0%, #10b981 100%);
@@ -195,13 +194,13 @@
 
         <div id="fileName"></div>
 
-        <!-- Khu vực xem trước & chỉnh nét dành riêng cho tính năng Làm Nét Ảnh -->
+        <!-- Khu vực xem trước & chỉnh nét -->
         <div id="imageWorkspace">
             <div class="preview-box">
                 <canvas id="imageCanvas"></canvas>
             </div>
             <div class="slider-control">
-                <label for="sharpnessRange">Mức độ tăng nét & phóng to Full HD: <span id="valDisplay" style="color:#4f46e5;">1.5x</span></label>
+                <label for="sharpnessRange">Mức độ tăng nét sắc sảo (Banna Hub AI): <span id="valDisplay" style="color:#4f46e5;">1.5x</span></label>
                 <input type="range" id="sharpnessRange" min="1" max="3" step="0.1" value="1.5" />
             </div>
         </div>
@@ -267,7 +266,7 @@
                 uploadLabel.innerHTML = '📂 Kéo thả file Word/PPT vào đây hoặc <span>chọn file từ máy</span>';
                 convertBtn.style.display = "block";
             } else if (mode === 'img-upscale') {
-                subDesc.textContent = "Tăng độ phân giải lên chuẩn Full HD siêu nét, tái tạo chi tiết và đường biên tối đa.";
+                subDesc.textContent = "Công nghệ Banna Hub AI: Tăng độ phân giải và làm sắc nét từng chi tiết biên ảnh ngay lập tức.";
                 fileInput.accept = "image/*";
                 uploadLabel.innerHTML = '🖼️ Kéo thả hình ảnh vào đây hoặc <span>chọn ảnh từ máy</span>';
                 convertBtn.style.display = "none";
@@ -289,6 +288,7 @@
             }
         });
 
+        // Sự kiện khi kéo thanh trượt - cập nhật trực tiếp thời gian thực
         sharpnessRange.addEventListener('input', function() {
             valDisplay.innerText = this.value + 'x';
             if (originalImageObj && currentMode === 'img-upscale') {
@@ -441,7 +441,7 @@
 
         function loadAndUpscaleImage(file) {
             statusDiv.style.color = "#4f46e5";
-            statusDiv.textContent = "Đang xử lý tối ưu nét ảnh Full HD...";
+            statusDiv.textContent = "Đang tải ảnh vào hệ thống Banna Hub AI...";
             
             const reader = new FileReader();
             reader.onload = function(event) {
@@ -455,11 +455,11 @@
             reader.readAsDataURL(file);
         }
 
+        // Thuật toán xử lý nét biên mạnh mẽ trực tiếp trên Canvas
         function processAndDrawImage() {
             if (!originalImageObj) return;
 
             const scale = parseFloat(sharpnessRange.value);
-            // Cho phép phóng to sắc nét tối đa chất lượng cao
             const targetWidth = Math.min(originalImageObj.width * scale, 2560);
             const targetHeight = Math.min(originalImageObj.height * scale, 1440);
 
@@ -470,24 +470,25 @@
             imageCtx.imageSmoothingQuality = 'high';
             imageCtx.drawImage(originalImageObj, 0, 0, targetWidth, targetHeight);
 
-            // Thuật toán siêu tăng nét và làm rõ chi tiết viền
-            applySuperSharpEnhancement(imageCtx, targetWidth, targetHeight, sharpnessRange.value);
+            // Áp dụng bộ lọc tăng cường sắc nét tối đa
+            applyBannaHubSharpFilter(imageCtx, targetWidth, targetHeight, sharpnessRange.value);
 
             imageCanvas.toBlob(function(blob) {
                 generatedBlob = blob;
-                outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + "-HD-SuperSharp.png";
-                finalizeSuccess(`Đã xử lý nét ảnh siêu cấp (${Math.round(targetWidth)}x${Math.round(targetHeight)}px)!`);
+                outputFileName = selectedFile.name.replace(/\.[^/.]+$/, "") + "-BannaHub-HD.png";
+                finalizeSuccess(`Đã tối ưu siêu nét thành công (${Math.round(targetWidth)}x${Math.round(targetHeight)}px)!`);
             }, 'image/png');
         }
 
-        function applySuperSharpEnhancement(context, width, height, strengthFactor) {
+        function applyBannaHubSharpFilter(context, width, height, strengthFactor) {
             const imageData = context.getImageData(0, 0, width, height);
             const src = imageData.data;
             const w = imageData.width;
             const h = imageData.height;
             
             const outputData = new Uint8ClampedArray(src);
-            const intensity = 0.45 * parseFloat(strengthFactor); // Tăng cường độ nét rõ rệt hơn
+            // Hệ số khuếch đại độ nét được đẩy cao theo mức thanh trượt
+            const intensity = 0.6 * parseFloat(strengthFactor);
 
             for (let y = 1; y < h - 1; y++) {
                 for (let x = 1; x < w - 1; x++) {
@@ -500,11 +501,11 @@
                         const left = src[(y * w + (x - 1)) * 4 + c];
                         const right = src[(y * w + (x + 1)) * 4 + c];
 
-                        // Ma trận lọc sắc nét nâng cao giúp các chi tiết nhỏ nổi bật hẳn lên
+                        // Thuật toán phát hiện và làm sắc nét đường biên (Edge Sharpening)
                         const blurred = (top + bottom + left + right) / 4;
-                        const edgeEnhance = current + (current - blurred) * (intensity + 0.2);
+                        const edgeVal = current + (current - blurred) * intensity;
 
-                        outputData[idx + c] = Math.min(255, Math.max(0, edgeEnhance));
+                        outputData[idx + c] = Math.min(255, Math.max(0, edgeVal));
                     }
                     outputData[idx + 3] = src[idx + 3];
                 }
