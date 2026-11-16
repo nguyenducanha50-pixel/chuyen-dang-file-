@@ -3,89 +3,211 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Banna Hub — Smart File Studio</title>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/gitbrent/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
 
 <style>
-:root{--bg:#080d1c;--panel:#111a2e;--panel2:#17233b;--line:rgba(148,163,184,.18);--text:#eef4ff;--muted:#9aa9c2;--purple:#8b7cff;--cyan:#4ed9e8;--green:#27d6a0;--danger:#ff7185}
-*{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;min-height:100vh;color:var(--text);font-family:Inter,"Segoe UI",Arial,sans-serif;background:radial-gradient(ellipse at 12% 5%,rgba(94,75,255,.25),transparent 35%),radial-gradient(ellipse at 90% 90%,rgba(26,196,218,.13),transparent 32%),var(--bg);padding:28px 18px 48px}
-button,input{font:inherit}
-.shell{max-width:1100px;margin:auto}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:0 auto 26px}
-.brand{display:flex;align-items:center;gap:12px}
-.brand-mark{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:23px;background:linear-gradient(135deg,#7668ff,#34c9e5);box-shadow:0 8px 28px #6255e955}
-.brand-name{font-weight:800;letter-spacing:.2px}
-.brand-sub{font-size:11px;color:var(--muted);margin-top:3px;letter-spacing:1.5px;text-transform:uppercase}
-.top-pill{border:1px solid var(--line);background:#ffffff08;color:#c7d4e9;border-radius:999px;padding:9px 14px;font-size:12px}
-.hero{text-align:center;margin:24px auto 28px}
-.eyebrow{color:#9b91ff;font-size:11px;font-weight:800;letter-spacing:2.5px;text-transform:uppercase}
-.hero h1{font-size:clamp(28px,5vw,43px);margin:10px 0 9px;letter-spacing:-1.3px}
-.gradient-text{background:linear-gradient(90deg,#a99fff,#61e0e8);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero p{color:var(--muted);font-size:14px;line-height:1.65;margin:0 auto;max-width:650px}
-.app-card{border:1px solid var(--line);background:linear-gradient(145deg,rgba(20,31,54,.96),rgba(12,19,35,.96));border-radius:25px;padding:clamp(18px,3.5vw,34px);box-shadow:0 28px 90px #0007;backdrop-filter:blur(18px)}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:22px}
-.tab{border:1px solid var(--line);background:#ffffff05;color:#b5c2d8;border-radius:13px;padding:13px 9px;cursor:pointer;font-size:13px;font-weight:700;transition:.2s}
-.tab:hover{border-color:#8b7cff88;background:#8b7cff12}
-.tab.active{color:white;border-color:#887aff;background:linear-gradient(135deg,#6658e8,#5144c6);box-shadow:0 8px 24px #5e52d94d}
-.mode-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:17px}
-.mode-heading h2{font-size:19px;margin:0 0 6px}
-.mode-heading p{font-size:12px;color:var(--muted);margin:0;line-height:1.5}
-.mode-icon{width:42px;height:42px;flex:0 0 auto;border-radius:13px;display:grid;place-items:center;background:#8b7cff1b;font-size:21px}
-.dropzone{position:relative;border:1.5px dashed #7772ef;background:linear-gradient(135deg,#7772ef0c,#4ed9e80a);border-radius:18px;min-height:150px;display:grid;place-items:center;text-align:center;padding:22px;cursor:pointer;transition:.2s}
-.dropzone:hover,.dropzone.drag{border-color:var(--cyan);background:#4ed9e812;transform:translateY(-1px)}
-.dropzone input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
-.upload-icon{font-size:31px;margin-bottom:9px}
-.drop-title{font-size:14px;font-weight:750}
-.drop-title span{color:#9f95ff;text-decoration:underline}
-.drop-hint{font-size:11px;color:var(--muted);margin-top:7px}
-.file-info{display:none;align-items:center;justify-content:space-between;gap:12px;margin:13px 0;padding:12px 14px;background:#ffffff08;border:1px solid var(--line);border-radius:12px}
-.file-left{display:flex;align-items:center;gap:10px;min-width:0}
-.file-symbol{width:35px;height:35px;border-radius:10px;background:#8b7cff20;display:grid;place-items:center}
-.file-name{font-size:12px;font-weight:700;overflow-wrap:anywhere}
-.file-meta{font-size:10px;color:var(--muted);margin-top:4px}
-.text-btn{border:0;background:transparent;color:#ff9aaa;cursor:pointer;font-size:12px}
-.options{display:none;margin-top:16px;padding:17px;border:1px solid var(--line);border-radius:16px;background:#ffffff05}
-.options-title{font-size:12px;font-weight:800;margin-bottom:14px;color:#dce6f8}
-.control-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-.field label{display:flex;justify-content:space-between;gap:8px;color:#c2cee2;font-size:11px;margin-bottom:8px}
-.field output{color:#9e95ff;font-weight:800}
-.field select{width:100%;background:#101a30;color:var(--text);border:1px solid var(--line);padding:10px 11px;border-radius:10px;outline:none}
-.field input[type=range]{width:100%;accent-color:#8b7cff}
-.checkline{display:flex;align-items:center;gap:8px;color:#b9c7dc;font-size:11px;margin-top:13px}
-.checkline input{accent-color:#8b7cff}
-.preview{display:none;margin-top:17px;border:1px solid var(--line);background:#080f1f;border-radius:16px;padding:13px}
-.preview-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;font-size:12px;font-weight:700}
-.preview-stage{min-height:150px;max-height:420px;overflow:auto;display:grid;place-items:center;background:repeating-conic-gradient(#ffffff08 0% 25%,transparent 0% 50%) 50%/18px 18px;border-radius:11px;padding:10px}
-.preview-stage canvas{max-width:100%;height:auto;max-height:390px;object-fit:contain}
-.preview-note{font-size:10px;color:var(--muted);margin-top:9px;line-height:1.5}
-.actions{display:flex;gap:10px;margin-top:18px}
-.primary,.secondary{border:0;border-radius:13px;padding:14px 18px;font-weight:800;cursor:pointer;transition:.2s}
-.primary{flex:1;color:#fff;background:linear-gradient(100deg,#7164f2,#4e9be8);box-shadow:0 9px 24px #5f66e544}
-.primary:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
-.primary:disabled{opacity:.42;cursor:not-allowed}
-.secondary{display:none;color:#06251e;background:linear-gradient(100deg,#40e0b1,#5ce0d8)}
-.status{min-height:22px;margin-top:14px;font-size:12px;color:#b2aaff;line-height:1.5}
-.progress{height:5px;border-radius:99px;background:#ffffff12;overflow:hidden;display:none;margin-top:9px}
-.progress-bar{height:100%;width:0;background:linear-gradient(90deg,#887aff,#4ed9e8);transition:width .2s}
-.features{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-.feature{border:1px solid var(--line);background:#ffffff05;border-radius:14px;padding:14px}
-.feature b{display:block;font-size:12px;margin:7px 0 4px}
-.feature span{font-size:10px;color:var(--muted);line-height:1.45}
-.feature i{font-style:normal;font-size:19px}
-.footer{text-align:center;color:#687891;font-size:10px;margin-top:22px;line-height:1.7}
-@media(max-width:720px){
-body{padding:17px 12px 30px}
-.tabs{grid-template-columns:repeat(2,1fr)}
-.features{grid-template-columns:1fr}
-.top-pill{display:none}
-.control-grid{grid-template-columns:1fr}
-.actions{flex-direction:column}
-.secondary{width:100%}
-.hero{margin-top:14px}
+:root {
+ --bg:#080d1c;
+ --panel:#111a2e;
+ --line:#26344f;
+ --txt:#eef4ff;
+ --muted:#9aa9c2;
+ --purple:#8173ff;
+ --cyan:#4ed9e8;
+ --green:#35d6a3;
+}
+* {box-sizing:border-box}
+body {
+ margin:0;padding:26px 16px 45px;
+ min-height:100vh;color:var(--txt);
+ font-family:Segoe UI,Arial,sans-serif;
+ background:
+ radial-gradient(ellipse at 10% 0%,#5544b744,transparent 38%),
+ radial-gradient(ellipse at 90% 90%,#168c9d22,transparent 34%),
+ var(--bg);
+}
+.shell {max-width:1050px;margin:auto}
+.top {
+ display:flex;justify-content:space-between;
+ align-items:center;margin-bottom:28px
+}
+.brand {display:flex;gap:12px;align-items:center}
+.logo {
+ width:44px;height:44px;border-radius:14px;
+ display:grid;place-items:center;
+ background:linear-gradient(135deg,#7567ff,#36cfe1);
+ font-size:23px
+}
+.brand b {font-size:17px}
+.brand small {
+ display:block;color:var(--muted);
+ font-size:10px;letter-spacing:1.5px;margin-top:3px
+}
+.pill {
+ border:1px solid var(--line);padding:9px 13px;
+ border-radius:99px;color:#c6d3e8;font-size:12px
+}
+.hero {text-align:center;margin:20px 0 28px}
+.eyebrow {
+ color:#a69aff;font-size:11px;
+ letter-spacing:2px;font-weight:800
+}
+.hero h1 {font-size:clamp(28px,5vw,43px);margin:10px 0}
+.grad {
+ background:linear-gradient(90deg,#b0a6ff,#60e4e8);
+ background-clip:text;color:transparent
+}
+.hero p {color:var(--muted);font-size:14px;line-height:1.6}
+.card {
+ background:linear-gradient(145deg,#15213aee,#0e1729f5);
+ border:1px solid var(--line);border-radius:24px;
+ padding:clamp(16px,3vw,30px);
+ box-shadow:0 24px 75px #0007
+}
+.tabs {
+ display:grid;grid-template-columns:repeat(3,1fr);
+ gap:9px;margin-bottom:23px
+}
+.tab {
+ border:1px solid var(--line);border-radius:12px;
+ background:#ffffff07;color:#b8c5d9;
+ padding:13px 8px;font-weight:700;cursor:pointer
+}
+.tab.active {
+ background:linear-gradient(110deg,#7061ed,#4d8fdf);
+ border-color:#8e82ff;color:white
+}
+.heading {
+ display:flex;justify-content:space-between;
+ align-items:center;margin-bottom:16px
+}
+.heading h2 {font-size:19px;margin:0 0 6px}
+.heading p {
+ font-size:12px;color:var(--muted);
+ margin:0;line-height:1.5
+}
+.modeicon {
+ font-size:25px;background:#8173ff20;
+ padding:10px;border-radius:13px
+}
+.drop {
+ position:relative;border:1.5px dashed #8173ff;
+ border-radius:17px;min-height:145px;
+ display:grid;place-items:center;text-align:center;
+ padding:22px;background:#8173ff0b;cursor:pointer
+}
+.drop.drag {border-color:var(--cyan);background:#4ed9e812}
+.drop input {
+ position:absolute;inset:0;width:100%;height:100%;
+ opacity:0;cursor:pointer
+}
+.drop strong {font-size:14px}
+.drop em {font-style:normal;color:#a99fff;text-decoration:underline}
+.drop small {
+ display:block;color:var(--muted);
+ margin-top:8px;font-size:11px
+}
+.file {
+ display:none;align-items:center;justify-content:space-between;
+ gap:10px;padding:12px;margin-top:12px;
+ border:1px solid var(--line);border-radius:12px;
+ background:#ffffff08
+}
+.fileName {font-size:12px;overflow-wrap:anywhere}
+.fileMeta {font-size:10px;color:var(--muted);margin-top:4px}
+.remove {border:0;background:none;color:#ff91a1;cursor:pointer}
+.options {
+ display:none;margin-top:16px;padding:16px;
+ border:1px solid var(--line);border-radius:14px;
+ background:#ffffff05
+}
+.options h3 {font-size:12px;margin:0 0 14px}
+.grid {display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.field label {
+ display:flex;justify-content:space-between;
+ font-size:11px;color:#c6d3e8;margin-bottom:8px
+}
+.field output {color:#a99fff;font-weight:bold}
+.field input[type=range],.field select {width:100%}
+.field input[type=range] {accent-color:#8b7cff}
+.field select {
+ background:#101a30;color:white;
+ border:1px solid var(--line);
+ border-radius:9px;padding:10px
+}
+.hint {
+ font-size:10px;color:var(--muted);
+ line-height:1.5;margin-top:12px
+}
+.preview {
+ display:none;margin-top:16px;padding:13px;
+ border:1px solid var(--line);border-radius:14px;
+ background:#080f1f
+}
+.previewtop {
+ display:flex;justify-content:space-between;
+ gap:10px;font-size:12px;margin-bottom:10px
+}
+.stage {
+ min-height:140px;max-height:420px;overflow:auto;
+ display:grid;place-items:center;background:#0b1323;
+ border-radius:10px;padding:10px
+}
+.stage canvas {max-width:100%;max-height:390px;height:auto;object-fit:contain}
+.actions {display:flex;gap:10px;margin-top:17px}
+.btn {
+ border:0;border-radius:12px;padding:14px 17px;
+ font-weight:800;cursor:pointer
+}
+.primary {
+ flex:1;color:white;
+ background:linear-gradient(100deg,#7466f1,#4d98e4)
+}
+.download {
+ display:none;color:#06251e;
+ background:linear-gradient(100deg,#43dfb0,#60ded7)
+}
+.btn:disabled {opacity:.45;cursor:not-allowed}
+.status {
+ min-height:22px;margin-top:13px;
+ font-size:12px;color:#b9adff;line-height:1.5
+}
+.progress {
+ height:5px;background:#ffffff12;
+ border-radius:99px;overflow:hidden;
+ display:none;margin-top:8px
+}
+.bar {
+ height:100%;width:0;
+ background:linear-gradient(90deg,#8173ff,#4ed9e8)
+}
+.features {
+ display:grid;grid-template-columns:repeat(3,1fr);
+ gap:12px;margin-top:17px
+}
+.feature {
+ border:1px solid var(--line);
+ background:#ffffff06;padding:14px;border-radius:13px
+}
+.feature b {display:block;font-size:12px;margin:6px 0}
+.feature span {
+ font-size:10px;color:var(--muted);line-height:1.5
+}
+.foot {
+ text-align:center;color:#71809a;
+ font-size:10px;margin-top:20px
+}
+@media(max-width:650px) {
+ .tabs {grid-template-columns:1fr}
+ .features {grid-template-columns:1fr}
+ .pill {display:none}
+ .grid {grid-template-columns:1fr}
+ .actions {flex-direction:column}
 }
 </style>
 </head>
@@ -93,141 +215,134 @@ body{padding:17px 12px 30px}
 <body>
 <div class="shell">
 
-<header class="topbar">
+<header class="top">
  <div class="brand">
-  <div class="brand-mark">⚡</div>
+  <div class="logo">⚡</div>
   <div>
-   <div class="brand-name">BANNA HUB</div>
-   <div class="brand-sub">Smart File Studio</div>
+   <b>BANNA HUB</b>
+   <small>SMART FILE STUDIO</small>
   </div>
  </div>
- <div class="top-pill">✦ Công cụ xử lý tài liệu trực tuyến</div>
+ <div class="pill">✦ Công cụ xử lý tài liệu trực tuyến</div>
 </header>
 
 <section class="hero">
- <div class="eyebrow">All-in-one document tools</div>
- <h1>Một không gian. <span class="gradient-text">Mọi chuyển đổi.</span></h1>
- <p>Chuyển đổi tài liệu và nâng cao chất lượng hình ảnh ngay trên trình duyệt. Nhanh gọn, trực quan và dễ sử dụng.</p>
+ <div class="eyebrow">ALL-IN-ONE DOCUMENT TOOLS</div>
+ <h1>Một không gian. <span class="grad">Mọi chuyển đổi.</span></h1>
+ <p>Chuyển đổi PDF và nâng cao độ rõ nét hình ảnh ngay trên trình duyệt.</p>
 </section>
 
-<main class="app-card">
+<main class="card">
 
- <nav class="tabs" aria-label="Chế độ xử lý">
-  <button class="tab active" data-mode="pdf-to-ppt">📊 PDF → PPT</button>
-  <button class="tab" data-mode="pdf-to-word">📝 PDF → Word</button>
-  <button class="tab" data-mode="doc-to-pdf">📄 Word/PPT → PDF</button>
-  <button class="tab" data-mode="img-upscale">✨ Làm nét ảnh HD</button>
- </nav>
+<nav class="tabs">
+ <button class="tab active" data-mode="ppt">📊 PDF → PowerPoint</button>
+ <button class="tab" data-mode="word">📝 PDF → Word</button>
+ <button class="tab" data-mode="image">✨ Làm nét ảnh HD</button>
+</nav>
 
- <div class="mode-heading">
-  <div>
-   <h2 id="modeTitle">Chuyển PDF sang PowerPoint</h2>
-   <p id="modeDesc">Mỗi trang PDF được đưa vào một slide, giữ nguyên hình ảnh hiển thị.</p>
-  </div>
-  <div class="mode-icon" id="modeIcon">📊</div>
+<div class="heading">
+ <div>
+  <h2 id="title">Chuyển PDF sang PowerPoint</h2>
+  <p id="desc">Mỗi trang PDF trở thành một slide, giữ nguyên tỉ lệ trang.</p>
  </div>
+ <div class="modeicon" id="icon">📊</div>
+</div>
 
- <label class="dropzone" id="dropZone">
-  <input type="file" id="fileInput" accept=".pdf">
-  <div>
-   <div class="upload-icon" id="uploadIcon">☁️</div>
-   <div class="drop-title" id="uploadTitle">Kéo thả tệp vào đây hoặc <span>chọn tệp từ máy</span></div>
-   <div class="drop-hint" id="uploadHint">Hỗ trợ PDF • Chọn một tệp mỗi lần</div>
-  </div>
- </label>
-
- <div class="file-info" id="fileInfo">
-  <div class="file-left">
-   <div class="file-symbol" id="fileSymbol">📄</div>
-   <div style="min-width:0">
-    <div class="file-name" id="fileName"></div>
-    <div class="file-meta" id="fileMeta"></div>
-   </div>
-  </div>
-  <button class="text-btn" id="removeFile">✕ Xóa tệp</button>
+<label class="drop" id="drop">
+ <input type="file" id="file" accept=".pdf">
+ <div>
+  <div style="font-size:30px;margin-bottom:8px" id="uploadIcon">☁️</div>
+  <strong id="uploadText">Kéo thả PDF vào đây hoặc <em>chọn tệp từ máy</em></strong>
+  <small id="uploadHint">Hỗ trợ PDF · Một tệp mỗi lần</small>
  </div>
+</label>
 
- <section class="options" id="imageOptions">
-  <div class="options-title">ĐIỀU CHỈNH CHẤT LƯỢNG ẢNH</div>
-  <div class="control-grid">
-
-   <div class="field">
-    <label for="scaleSelect">Độ phân giải xuất</label>
-    <select id="scaleSelect">
-     <option value="2">Tăng kích thước 2×</option>
-     <option value="3" selected>Tăng kích thước 3×</option>
-     <option value="1">Giữ kích thước gốc</option>
-    </select>
-   </div>
-
-   <div class="field">
-    <label for="sharpRange">Độ sắc nét <output id="sharpValue">65%</output></label>
-    <input id="sharpRange" type="range" min="0" max="150" value="65">
-   </div>
-
-   <div class="field">
-    <label for="denoiseRange">Làm mượt nhiễu <output id="denoiseValue">10%</output></label>
-    <input id="denoiseRange" type="range" min="0" max="40" value="10">
-   </div>
-
-   <div class="field">
-    <label for="contrastRange">Tương phản <output id="contrastValue">5%</output></label>
-    <input id="contrastRange" type="range" min="-20" max="35" value="5">
-   </div>
-
-  </div>
-  <label class="checkline">
-   <input type="checkbox" id="pngOutput" checked>
-   Xuất ảnh PNG chất lượng cao (khuyên dùng)
-  </label>
- </section>
-
- <section class="preview" id="preview">
-  <div class="preview-head">
-   <span>👁 Xem trước kết quả</span>
-   <span id="previewDimensions" style="color:#9e95ff"></span>
-  </div>
-  <div class="preview-stage">
-   <canvas id="previewCanvas"></canvas>
-  </div>
-  <div class="preview-note">Bản xem trước được thu nhỏ để hiển thị. Tệp tải xuống sẽ giữ độ phân giải đã chọn.</div>
- </section>
-
- <div class="actions">
-  <button class="primary" id="processBtn" disabled>Chọn tệp để bắt đầu</button>
-  <button class="secondary" id="downloadBtn">⬇ Tải kết quả</button>
+<div class="file" id="filebox">
+ <div>
+  <div class="fileName" id="filename"></div>
+  <div class="fileMeta" id="filemeta"></div>
  </div>
+ <button class="remove" id="remove">✕ Xóa</button>
+</div>
 
- <div class="progress" id="progress">
-  <div class="progress-bar" id="progressBar"></div>
+<section class="options" id="options">
+ <h3>ĐIỀU CHỈNH CHẤT LƯỢNG ẢNH</h3>
+ <div class="grid">
+
+  <div class="field">
+   <label>Độ phân giải <output id="scaleOut">2×</output></label>
+   <select id="scale">
+    <option value="1">Kích thước gốc</option>
+    <option value="2" selected>Phóng to 2×</option>
+    <option value="3">Phóng to 3×</option>
+    <option value="4">Phóng to 4×</option>
+   </select>
+  </div>
+
+  <div class="field">
+   <label>Độ sắc nét <output id="sharpOut">140%</output></label>
+   <input id="sharp" type="range" min="0" max="250" value="140">
+  </div>
+
+  <div class="field">
+   <label>Khử nhiễu <output id="noiseOut">8%</output></label>
+   <input id="noise" type="range" min="0" max="35" value="8">
+  </div>
+
+  <div class="field">
+   <label>Tương phản <output id="contrastOut">8%</output></label>
+   <input id="contrast" type="range" min="-15" max="35" value="8">
+  </div>
+
  </div>
- <div class="status" id="status" role="status" aria-live="polite"></div>
+ <div class="hint">
+  Bộ lọc làm nét tăng độ rõ đường viền và chi tiết sẵn có.
+  Phóng to không thể tự tái tạo chi tiết đã mất hoàn toàn
+  như công nghệ AI phục hồi ảnh.
+ </div>
+</section>
 
+<section class="preview" id="preview">
+ <div class="previewtop">
+  <b>👁 Xem trước</b>
+  <span id="dimensions" style="color:#a99fff"></span>
+ </div>
+ <div class="stage">
+  <canvas id="canvas"></canvas>
+ </div>
+</section>
+
+<div class="actions">
+ <button class="btn primary" id="process" disabled>Chọn tệp để bắt đầu</button>
+ <button class="btn download" id="download">⬇ Tải kết quả</button>
+</div>
+
+<div class="progress" id="progress">
+ <div class="bar" id="bar"></div>
+</div>
+
+<div class="status" id="status" role="status"></div>
 </main>
 
 <section class="features">
  <div class="feature">
-  <i>🛡️</i>
+  🛡️
   <b>Xử lý trên trình duyệt</b>
-  <span>Tệp được xử lý cục bộ trong trình duyệt, không cần tải lên máy chủ của trang.</span>
+  <span>Tệp được xử lý cục bộ, không cần tải lên máy chủ của trang.</span>
  </div>
  <div class="feature">
-  <i>🔎</i>
+  🔎
   <b>Tăng cường hình ảnh</b>
-  <span>Phóng to, tăng nét và tinh chỉnh tương phản bằng bộ lọc xử lý ảnh.</span>
+  <span>Phóng to, tăng nét, giảm nhiễu và tinh chỉnh tương phản.</span>
  </div>
  <div class="feature">
-  <i>⚙️</i>
-  <b>Dễ thao tác</b>
-  <span>Giao diện thích ứng máy tính và điện thoại, có kéo thả tệp.</span>
+  📑
+  <b>Xuất tài liệu</b>
+  <span>PDF sang PowerPoint hoặc Word với ảnh phủ kín từng trang A4.</span>
  </div>
 </section>
 
-<footer class="footer">
- BANNA HUB · SMART FILE STUDIO<br>
- Chất lượng đầu ra phụ thuộc vào tệp gốc và giới hạn xử lý của thiết bị.
-</footer>
-
+<footer class="foot">BANNA HUB · SMART FILE STUDIO</footer>
 </div>
 
 <script>
@@ -238,570 +353,522 @@ if(window.pdfjsLib) {
 
 const $ = id => document.getElementById(id);
 
-let currentMode = 'pdf-to-ppt';
-let selectedFile = null;
-let generatedBlob = null;
-let outputFileName = '';
-let processedCanvas = null;
+let mode='ppt',file=null,blob=null,outName='',busy=false;
 
-const configs = {
- 'pdf-to-ppt': {
-  title:'Chuyển PDF sang PowerPoint',
-  desc:'Mỗi trang PDF được đưa vào một slide dưới dạng hình ảnh chất lượng cao.',
-  icon:'📊',accept:'.pdf',
-  hint:'Hỗ trợ PDF • Chọn một tệp mỗi lần',
-  label:'Kéo thả tệp PDF vào đây hoặc <span>chọn tệp từ máy</span>'
- },
- 'pdf-to-word': {
-  title:'Chuyển PDF sang Word',
-  desc:'Đưa từng trang PDF vào tài liệu Word dưới dạng hình ảnh để giữ hình thức trang.',
-  icon:'📝',accept:'.pdf',
-  hint:'Hỗ trợ PDF • Chọn một tệp mỗi lần',
-  label:'Kéo thả tệp PDF vào đây hoặc <span>chọn tệp từ máy</span>'
- },
- 'doc-to-pdf': {
-  title:'Word/PPT sang PDF',
-  desc:'Mở nội dung được hỗ trợ trong cửa sổ in của trình duyệt để lưu thành PDF.',
-  icon:'📄',accept:'.docx,.doc,.pptx',
-  hint:'Hỗ trợ DOCX, DOC, PPTX (mức hỗ trợ tùy định dạng)',
-  label:'Kéo thả tài liệu vào đây hoặc <span>chọn tệp từ máy</span>'
- },
- 'img-upscale': {
-  title:'Làm nét và nâng cấp ảnh',
-  desc:'Tăng kích thước, làm rõ đường viền và tinh chỉnh ảnh bằng bộ lọc Canvas.',
-  icon:'✨',accept:'image/*',
-  hint:'Hỗ trợ JPG, PNG, WEBP • Chọn một ảnh mỗi lần',
-  label:'Kéo thả hình ảnh vào đây hoặc <span>chọn ảnh từ máy</span>'
- }
+const settings={
+ ppt:[
+  'Chuyển PDF sang PowerPoint',
+  'Mỗi trang PDF trở thành một slide, giữ nguyên tỉ lệ trang.',
+  '📊','.pdf',
+  'Kéo thả PDF vào đây hoặc <em>chọn tệp từ máy</em>',
+  'Hỗ trợ PDF · Một tệp mỗi lần'
+ ],
+ word:[
+  'Chuyển PDF sang Word',
+  'Mỗi trang PDF được đặt kín một trang A4 trong tài liệu DOCX.',
+  '📝','.pdf',
+  'Kéo thả PDF vào đây hoặc <em>chọn tệp từ máy</em>',
+  'Hỗ trợ PDF · Xuất DOCX'
+ ],
+ image:[
+  'Làm nét và nâng cấp ảnh',
+  'Tăng chi tiết, giảm nhiễu và xuất ảnh đã xử lý.',
+  '✨','image/*',
+  'Kéo thả ảnh vào đây hoặc <em>chọn ảnh từ máy</em>',
+  'Hỗ trợ JPG, PNG, WEBP'
+ ]
 };
 
-const fileInput = $('fileInput');
-const dropZone = $('dropZone');
-const processBtn = $('processBtn');
-const downloadBtn = $('downloadBtn');
-
-function setStatus(msg,type='info') {
- $('status').textContent = msg;
- $('status').style.color =
- type==='error'?'var(--danger)':
- type==='success'?'var(--green)':'#b2aaff';
+function status(t,ok=false) {
+ $('status').textContent=t;
+ $('status').style.color=ok?'#42dfb0':'#b9adff';
 }
 
-function setProgress(v,show=true) {
- $('progress').style.display = show?'block':'none';
- $('progressBar').style.width = v+'%';
-}
-
-function fmtBytes(n) {
- if(n<1024)return n+' B';
- if(n<1048576)return (n/1024).toFixed(1)+' KB';
- return (n/1048576).toFixed(2)+' MB';
+function progress(n,show=true) {
+ $('progress').style.display=show?'block':'none';
+ $('bar').style.width=n+'%';
 }
 
 function resetOutput() {
- generatedBlob=null;
- outputFileName='';
- downloadBtn.style.display='none';
+ blob=null;
+ outName='';
+ $('download').style.display='none';
  $('preview').style.display='none';
- processedCanvas=null;
- setProgress(0,false);
+ progress(0,false);
 }
 
-function switchMode(mode) {
- currentMode=mode;
- selectedFile=null;
- fileInput.value='';
+function switchMode(m) {
+ mode=m;
+ file=null;
+ $('file').value='';
+ $('filebox').style.display='none';
  resetOutput();
 
- $('fileInfo').style.display='none';
- $('imageOptions').style.display=mode==='img-upscale'?'block':'none';
- $('modeTitle').textContent=configs[mode].title;
- $('modeDesc').textContent=configs[mode].desc;
- $('modeIcon').textContent=configs[mode].icon;
- $('uploadTitle').innerHTML=configs[mode].label;
- $('uploadHint').textContent=configs[mode].hint;
- $('uploadIcon').textContent=mode==='img-upscale'?'🖼️':'☁️';
+ let s=settings[m];
 
- fileInput.accept=configs[mode].accept;
- processBtn.textContent=mode==='img-upscale'?'✨ Làm nét ảnh ngay':'Bắt đầu chuyển đổi';
- processBtn.disabled=true;
- setStatus('');
+ $('title').textContent=s[0];
+ $('desc').textContent=s[1];
+ $('icon').textContent=s[2];
+ $('file').accept=s[3];
+ $('uploadText').innerHTML=s[4];
+ $('uploadHint').textContent=s[5];
+ $('uploadIcon').textContent=m==='image'?'🖼️':'☁️';
+ $('options').style.display=m==='image'?'block':'none';
 
- document.querySelectorAll('.tab').forEach(b=>
-  b.classList.toggle('active',b.dataset.mode===mode)
- );
+ $('process').disabled=true;
+ $('process').textContent=m==='image'
+  ?'✨ Làm nét ảnh ngay'
+  :'Bắt đầu chuyển đổi';
+
+ document.querySelectorAll('.tab').forEach(b=>{
+  b.classList.toggle('active',b.dataset.mode===m);
+ });
+
+ status('');
 }
 
-document.querySelectorAll('.tab').forEach(b=>
- b.addEventListener('click',()=>switchMode(b.dataset.mode))
-);
-
-function selectFile(file) {
- if(!file)return;
-
- const isImage=file.type.startsWith('image/');
- const isPdf=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
-
- if(currentMode==='img-upscale'&&!isImage) {
-  setStatus('Vui lòng chọn tệp hình ảnh hợp lệ.','error');
-  return;
- }
-
- if(currentMode!=='img-upscale'&&currentMode!=='doc-to-pdf'&&!isPdf) {
-  setStatus('Chế độ này chỉ nhận tệp PDF.','error');
-  return;
- }
-
- selectedFile=file;
- resetOutput();
-
- $('fileInfo').style.display='flex';
- $('fileName').textContent=file.name;
- $('fileMeta').textContent=fmtBytes(file.size)+' · '+(file.type||'Định dạng tệp');
- $('fileSymbol').textContent=isImage?'🖼️':isPdf?'📕':'📄';
-
- processBtn.disabled=false;
- setStatus('Tệp đã sẵn sàng.');
-
- if(currentMode==='img-upscale')loadPreviewOriginal(file);
-}
-
-fileInput.addEventListener('change',e=>selectFile(e.target.files[0]));
-
-$('removeFile').addEventListener('click',()=>{
- selectedFile=null;
- fileInput.value='';
- $('fileInfo').style.display='none';
- resetOutput();
- processBtn.disabled=true;
- processBtn.textContent=currentMode==='img-upscale'?'✨ Làm nét ảnh ngay':'Bắt đầu chuyển đổi';
- setStatus('Đã xóa tệp.');
+document.querySelectorAll('.tab').forEach(b=>{
+ b.onclick=()=>switchMode(b.dataset.mode);
 });
 
-['dragenter','dragover'].forEach(ev=>
- dropZone.addEventListener(ev,e=>{
-  e.preventDefault();
-  dropZone.classList.add('drag');
- })
-);
+function choose(f) {
+ if(!f)return;
 
-['dragleave','drop'].forEach(ev=>
- dropZone.addEventListener(ev,e=>{
-  e.preventDefault();
-  dropZone.classList.remove('drag');
- })
-);
+ let valid=mode==='image'
+  ?f.type.startsWith('image/')
+  :f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf');
 
-dropZone.addEventListener('drop',e=>selectFile(e.dataTransfer.files[0]));
+ if(!valid) {
+  status(mode==='image'
+   ?'Hãy chọn tệp ảnh hợp lệ.'
+   :'Chế độ này chỉ nhận tệp PDF.');
+  return;
+ }
 
-function loadImage(file) {
- return new Promise((resolve,reject)=>{
-  const url=URL.createObjectURL(file);
-  const img=new Image();
+ file=f;
+ resetOutput();
 
-  img.onload=()=>{
-   URL.revokeObjectURL(url);
-   resolve(img);
+ $('filebox').style.display='flex';
+ $('filename').textContent=f.name;
+ $('filemeta').textContent=(f.size/1048576).toFixed(2)+' MB';
+ $('process').disabled=false;
+
+ status('Đã nhận tệp. Sẵn sàng xử lý.');
+
+ if(mode==='image')previewOriginal(f);
+}
+
+$('file').onchange=e=>choose(e.target.files[0]);
+
+$('remove').onclick=()=>{
+ file=null;
+ $('file').value='';
+ $('filebox').style.display='none';
+ resetOutput();
+ $('process').disabled=true;
+ status('Đã xóa tệp.');
+};
+
+['dragover','dragenter'].forEach(e=>{
+ $('drop').addEventListener(e,x=>{
+  x.preventDefault();
+  $('drop').classList.add('drag');
+ });
+});
+
+['dragleave','drop'].forEach(e=>{
+ $('drop').addEventListener(e,x=>{
+  x.preventDefault();
+  $('drop').classList.remove('drag');
+ });
+});
+
+$('drop').addEventListener('drop',e=>{
+ choose(e.dataTransfer.files[0]);
+});
+
+function loadImg(f) {
+ return new Promise((res,rej)=>{
+  let u=URL.createObjectURL(f);
+  let im=new Image();
+
+  im.onload=()=>{
+   URL.revokeObjectURL(u);
+   res(im);
   };
 
-  img.onerror=()=>{
-   URL.revokeObjectURL(url);
-   reject(new Error('Không thể đọc hình ảnh này.'));
+  im.onerror=()=>{
+   URL.revokeObjectURL(u);
+   rej(Error('Không đọc được ảnh.'));
   };
 
-  img.src=url;
+  im.src=u;
  });
 }
 
-async function loadPreviewOriginal(file) {
+function showCanvas(src,wmax=1000,hmax=390) {
+ let c=$('canvas');
+ let r=Math.min(wmax/src.width,hmax/src.height,1);
+
+ c.width=Math.max(1,Math.round(src.width*r));
+ c.height=Math.max(1,Math.round(src.height*r));
+
+ c.getContext('2d').drawImage(src,0,0,c.width,c.height);
+
+ $('dimensions').textContent=
+  src.width+' × '+src.height+' px';
+
+ $('preview').style.display='block';
+}
+
+async function previewOriginal(f) {
  try {
-  const img=await loadImage(file);
-  const c=$('previewCanvas');
-  const ctx=c.getContext('2d');
-  const ratio=Math.min(900/img.width,360/img.height,1);
+  let im=await loadImg(f);
+  let c=document.createElement('canvas');
 
-  c.width=Math.round(img.width*ratio);
-  c.height=Math.round(img.height*ratio);
+  c.width=im.naturalWidth;
+  c.height=im.naturalHeight;
 
-  ctx.drawImage(img,0,0,c.width,c.height);
+  c.getContext('2d').drawImage(im,0,0);
 
-  $('previewDimensions').textContent=img.width+' × '+img.height+' px · ảnh gốc';
-  $('preview').style.display='block';
+  showCanvas(c);
  } catch(e) {
-  setStatus(e.message,'error');
+  status(e.message);
  }
 }
+
+['sharp','noise','contrast','scale'].forEach(id=>{
+ $(id).addEventListener('input',()=>{
+  let map={
+   sharp:'sharpOut',
+   noise:'noiseOut',
+   contrast:'contrastOut',
+   scale:'scaleOut'
+  };
+
+  $(map[id]).textContent=
+   $(id).value+(id==='scale'?'×':'%');
+ });
+});
 
 function clamp(v) {
  return Math.max(0,Math.min(255,v));
 }
 
-/* BỘ XỬ LÝ LÀM NÉT ẢNH */
+// BỘ LỌC LÀM NÉT ẢNH UNSHARP MASK
+function enhance(im,scale,sharp,noise,contrast) {
 
-function enhanceImage(img,scale,sharpPercent,denoisePercent,contrastPercent) {
+ let w=Math.round(im.naturalWidth*scale);
+ let h=Math.round(im.naturalHeight*scale);
 
- const w=Math.max(1,Math.round(img.naturalWidth*scale));
- const h=Math.max(1,Math.round(img.naturalHeight*scale));
-
- if(w*h>24000000) {
-  throw new Error('Ảnh sau khi phóng to vượt giới hạn xử lý an toàn (24 megapixel). Hãy chọn mức phóng to thấp hơn.');
+ if(w*h>18000000) {
+  throw Error('Ảnh sau phóng to vượt 18 megapixel. Hãy giảm mức phóng to.');
  }
 
- const base=document.createElement('canvas');
- base.width=w;
- base.height=h;
+ let c=document.createElement('canvas');
+ c.width=w;
+ c.height=h;
 
- const bctx=base.getContext('2d',{willReadFrequently:true});
+ let x=c.getContext('2d',{willReadFrequently:true});
 
- bctx.imageSmoothingEnabled=true;
- bctx.imageSmoothingQuality='high';
- bctx.drawImage(img,0,0,w,h);
+ x.imageSmoothingEnabled=true;
+ x.imageSmoothingQuality='high';
+ x.drawImage(im,0,0,w,h);
 
- const src=bctx.getImageData(0,0,w,h);
- const data=src.data;
- const original=new Uint8ClampedArray(data);
+ let id=x.getImageData(0,0,w,h);
+ let d=id.data;
+ let src=new Uint8ClampedArray(d);
 
- const strength=sharpPercent/100;
- const denoise=denoisePercent/100;
- const contrast=contrastPercent;
+ let amount=sharp/100;
+ let denoise=noise/100;
+ let con=contrast/100;
 
  for(let y=1;y<h-1;y++) {
-  for(let x=1;x<w-1;x++) {
+  for(let xx=1;xx<w-1;xx++) {
 
-   const i=(y*w+x)*4;
+   let i=(y*w+xx)*4;
 
-   for(let c=0;c<3;c++) {
+   for(let k=0;k<3;k++) {
 
-    const center=original[i+c];
-    const top=original[i-w*4+c];
-    const bottom=original[i+w*4+c];
-    const left=original[i-4+c];
-    const right=original[i+4+c];
+    let center=src[i+k];
 
-    const avg=(top+bottom+left+right)/4;
-    const smooth=center+(avg-center)*denoise;
-    const detail=center-avg;
+    let avg=(
+     src[i-4+k]+src[i+4+k]+
+     src[i-w*4+k]+src[i+w*4+k]+
+     src[i-w*4-4+k]+src[i-w*4+4+k]+
+     src[i+w*4-4+k]+src[i+w*4+4+k]
+    )/8;
 
-    let value=smooth+detail*strength;
-    value=(value-128)*(1+contrast/100)+128;
+    let softened=center+(avg-center)*denoise;
+    let v=softened+(center-avg)*amount;
 
-    data[i+c]=clamp(value);
+    v=(v-127.5)*(1+con)+127.5;
+
+    d[i+k]=clamp(v);
    }
   }
  }
 
- bctx.putImageData(src,0,0);
- return base;
+ x.putImageData(id,0,0);
+
+ return c;
 }
-
-function drawPreview(canvas) {
- const p=$('previewCanvas');
- const ctx=p.getContext('2d');
-
- const ratio=Math.min(1000/canvas.width,390/canvas.height,1);
-
- p.width=Math.max(1,Math.round(canvas.width*ratio));
- p.height=Math.max(1,Math.round(canvas.height*ratio));
-
- ctx.drawImage(canvas,0,0,p.width,p.height);
-
- $('previewDimensions').textContent=canvas.width+' × '+canvas.height+' px';
- $('preview').style.display='block';
-}
-
-['sharpRange','denoiseRange','contrastRange'].forEach(id=>
- $(id).addEventListener('input',()=>{
-  const map={
-   sharpRange:['sharpValue','%'],
-   denoiseRange:['denoiseValue','%'],
-   contrastRange:['contrastValue','%']
-  };
-
-  $(map[id][0]).textContent=$(id).value+map[id][1];
- })
-);
-
-processBtn.addEventListener('click',async()=>{
- if(!selectedFile)return;
-
- processBtn.disabled=true;
- downloadBtn.style.display='none';
- resetOutput();
-
- try {
-  if(currentMode==='img-upscale')await processImage();
-  else if(currentMode==='pdf-to-ppt')await convertPdfToPptx();
-  else if(currentMode==='pdf-to-word')await convertPdfToWord();
-  else await convertDocToPdf();
-
- } catch(err) {
-  console.error(err);
-  setStatus('Không thể xử lý: '+(err.message||'Đã xảy ra lỗi.'),'error');
-
- } finally {
-  processBtn.disabled=false;
- }
-});
-
-/* XỬ LÝ LÀM NÉT ẢNH */
 
 async function processImage() {
 
- setStatus('Đang đọc ảnh gốc…');
- setProgress(12);
- await new Promise(r=>setTimeout(r,30));
+ status('Đang đọc ảnh và nâng cấp chi tiết…');
+ progress(10);
 
- const img=await loadImage(selectedFile);
- setProgress(35);
+ let im=await loadImg(file);
 
- const scale=Number($('scaleSelect').value);
+ await new Promise(r=>setTimeout(r,20));
 
- const canvas=enhanceImage(
-  img,
-  scale,
-  Number($('sharpRange').value),
-  Number($('denoiseRange').value),
-  Number($('contrastRange').value)
+ progress(25);
+
+ let c=enhance(
+  im,
+  Number($('scale').value),
+  Number($('sharp').value),
+  Number($('noise').value),
+  Number($('contrast').value)
  );
 
- processedCanvas=canvas;
- drawPreview(canvas);
- setProgress(82);
+ showCanvas(c);
+ progress(75);
 
- const mime=$('pngOutput').checked?'image/png':'image/jpeg';
+ blob=await new Promise(res=>c.toBlob(res,'image/png'));
 
- generatedBlob=await new Promise(resolve=>
-  canvas.toBlob(resolve,mime,mime==='image/jpeg'?.94:undefined)
- );
+ if(!blob)throw Error('Không xuất được ảnh.');
 
- if(!generatedBlob) {
-  throw new Error('Trình duyệt không thể xuất ảnh.');
- }
+ outName=file.name.replace(/\.[^.]+$/,'')+'-BannaHub-HD.png';
 
- const ext=mime==='image/png'?'png':'jpg';
+ progress(100);
 
- outputFileName=selectedFile.name.replace(/\.[^.]+$/,'')+'-BannaHub-HD.'+ext;
+ $('download').style.display='inline-block';
 
- setProgress(100);
-
- setStatus(
-  `Hoàn tất! Ảnh đầu ra ${canvas.width} × ${canvas.height} px. Bạn có thể tải xuống.`,
-  'success'
- );
-
- downloadBtn.style.display='inline-block';
+ status('Đã xử lý xong! Ảnh HD đã sẵn sàng để tải xuống.',true);
 }
 
-/* PDF SANG POWERPOINT */
-
-async function convertPdfToPptx() {
-
- if(!window.pdfjsLib||!window.PptxGenJS) {
-  throw new Error('Không tải được thư viện PDF/PowerPoint. Kiểm tra kết nối Internet rồi thử lại.');
+async function getPdf() {
+ if(!window.pdfjsLib) {
+  throw Error('Không tải được PDF.js. Hãy kiểm tra Internet.');
  }
 
- setStatus('Đang đọc PDF…');
+ return pdfjsLib.getDocument({
+  data:await file.arrayBuffer()
+ }).promise;
+}
 
- const pdf=await pdfjsLib.getDocument({
-  data:await selectedFile.arrayBuffer()
+async function pdfPageCanvas(pdf,n,scale) {
+
+ let p=await pdf.getPage(n);
+ let vp=p.getViewport({scale});
+
+ let c=document.createElement('canvas');
+
+ c.width=Math.ceil(vp.width);
+ c.height=Math.ceil(vp.height);
+
+ await p.render({
+  canvasContext:c.getContext('2d'),
+  viewport:vp
  }).promise;
 
- const first=await pdf.getPage(1);
- const vp0=first.getViewport({scale:1});
+ return c;
+}
 
- const sw=7.5;
- const sh=sw/(vp0.width/vp0.height);
+// PDF SANG POWERPOINT
+async function pdfPpt() {
 
- const pptx=new PptxGenJS();
+ if(!window.PptxGenJS) {
+  throw Error('Không tải được thư viện PowerPoint.');
+ }
 
- pptx.defineLayout({
-  name:'PDF_LAYOUT',
+ let pdf=await getPdf();
+ let p=await pdf.getPage(1);
+ let v=p.getViewport({scale:1});
+
+ let ppt=new PptxGenJS();
+
+ let sw=10;
+ let sh=sw*v.height/v.width;
+
+ ppt.defineLayout({
+  name:'PDF_PAGE',
   width:sw,
   height:sh
  });
 
- pptx.layout='PDF_LAYOUT';
+ ppt.layout='PDF_PAGE';
 
- for(let i=1;i<=pdf.numPages;i++) {
+ for(let n=1;n<=pdf.numPages;n++) {
 
-  setStatus(`Đang dựng slide ${i}/${pdf.numPages}…`);
-  setProgress(Math.round(i/pdf.numPages*85));
+  status(`Đang tạo slide ${n}/${pdf.numPages}…`);
+  progress(n/pdf.numPages*85);
 
-  const page=await pdf.getPage(i);
-  const vp=page.getViewport({scale:2});
+  let c=await pdfPageCanvas(pdf,n,2);
 
-  const c=document.createElement('canvas');
-  c.width=vp.width;
-  c.height=vp.height;
+  let s=ppt.addSlide();
 
-  await page.render({
-   canvasContext:c.getContext('2d'),
-   viewport:vp
-  }).promise;
-
-  const slide=pptx.addSlide();
-
-  slide.addImage({
+  s.addImage({
    data:c.toDataURL('image/png'),
-   x:0,
-   y:0,
-   w:sw,
-   h:sh
+   x:0,y:0,w:sw,h:sh
   });
  }
 
- setStatus('Đang đóng gói PowerPoint…');
+ blob=await ppt.write({outputType:'blob'});
 
- generatedBlob=await pptx.write({outputType:'blob'});
+ outName=file.name.replace(/\.pdf$/i,'')+'.pptx';
 
- outputFileName=selectedFile.name.replace(/\.[^.]+$/,'')+'.pptx';
+ progress(100);
 
- finish('Chuyển PDF sang PowerPoint hoàn tất.');
+ $('download').style.display='inline-block';
+
+ status('Đã tạo PowerPoint. Mỗi trang PDF là một slide ảnh.',true);
 }
 
-/* PDF SANG WORD */
+// PDF SANG WORD - ẢNH PHỦ KÍN TRANG A4
+async function pdfWord() {
 
-async function convertPdfToWord() {
-
- if(!window.pdfjsLib) {
-  throw new Error('Không tải được thư viện PDF.js.');
+ if(!window.docx) {
+  throw Error('Không tải được thư viện DOCX. Hãy kiểm tra Internet.');
  }
 
- const pdf=await pdfjsLib.getDocument({
-  data:await selectedFile.arrayBuffer()
- }).promise;
+ let pdf=await getPdf();
 
- let html='';
+ const {
+  Document,
+  Packer,
+  Paragraph,
+  ImageRun
+ }=window.docx;
 
- for(let i=1;i<=pdf.numPages;i++) {
+ let sections=[];
 
-  setStatus(`Đang xử lý trang ${i}/${pdf.numPages}…`);
-  setProgress(Math.round(i/pdf.numPages*85));
+ // A4: kích thước ảnh theo tỉ lệ trang
+ const pageW=794;
+ const pageH=1123;
 
-  const page=await pdf.getPage(i);
-  const vp=page.getViewport({scale:2});
+ const twipW=11906;
+ const twipH=16838;
 
-  const c=document.createElement('canvas');
-  c.width=vp.width;
-  c.height=vp.height;
+ for(let n=1;n<=pdf.numPages;n++) {
 
-  await page.render({
-   canvasContext:c.getContext('2d'),
-   viewport:vp
-  }).promise;
+  status(`Đang dựng trang Word ${n}/${pdf.numPages}…`);
+  progress(n/pdf.numPages*82);
 
-  html+=`<div style="page-break-after:always;text-align:center">
-  <img style="max-width:100%;height:auto" src="${c.toDataURL('image/png')}">
-  </div>`;
+  let c=await pdfPageCanvas(pdf,n,2);
+
+  let data=await new Promise(r=>c.toBlob(r,'image/png'));
+
+  let bytes=new Uint8Array(await data.arrayBuffer());
+
+  sections.push({
+   properties:{
+    page:{
+     size:{
+      width:twipW,
+      height:twipH
+     },
+     margin:{
+      top:0,
+      right:0,
+      bottom:0,
+      left:0,
+      header:0,
+      footer:0
+     }
+    }
+   },
+
+   children:[
+    new Paragraph({
+     spacing:{
+      before:0,
+      after:0,
+      line:1
+     },
+
+     children:[
+      new ImageRun({
+       data:bytes,
+       transformation:{
+        width:pageW,
+        height:pageH
+       }
+      })
+     ]
+    })
+   ]
+  });
  }
 
- const doc=`<!doctype html>
- <html>
- <head><meta charset="utf-8"></head>
- <body>${html}</body>
- </html>`;
+ let doc=new Document({sections});
 
- generatedBlob=new Blob(['\ufeff',doc],{
-  type:'application/msword'
- });
+ blob=await Packer.toBlob(doc);
 
- outputFileName=selectedFile.name.replace(/\.[^.]+$/,'')+'.doc';
+ outName=file.name.replace(/\.pdf$/i,'')+'.docx';
 
- finish('Đã tạo tài liệu Word dạng trang ảnh.');
+ progress(100);
+
+ $('download').style.display='inline-block';
+
+ status('Đã tạo DOCX. Mỗi trang PDF được đặt kín một trang A4, không còn ảnh nhỏ nằm giữa trang.',true);
 }
 
-/* WORD SANG PDF */
+// NÚT XỬ LÝ
+$('process').onclick=async()=>{
 
-async function convertDocToPdf() {
+ if(!file||busy)return;
 
- const ext=selectedFile.name.split('.').pop().toLowerCase();
+ busy=true;
 
- if(ext==='pptx') {
-  throw new Error('Bản hiện tại chưa hỗ trợ chuyển PPTX trực tiếp. Hãy mở bằng PowerPoint/LibreOffice và chọn Xuất hoặc Lưu dưới dạng PDF.');
+ $('process').disabled=true;
+ $('download').style.display='none';
+
+ resetOutput();
+
+ try {
+
+  if(mode==='image') {
+   await processImage();
+  } else if(mode==='ppt') {
+   await pdfPpt();
+  } else {
+   await pdfWord();
+  }
+
+ } catch(e) {
+
+  console.error(e);
+  status('Lỗi: '+(e.message||'Không thể xử lý.'));
+
+ } finally {
+
+  busy=false;
+  $('process').disabled=!file;
  }
+};
 
- if(ext==='doc') {
-  throw new Error('Tệp DOC cũ chưa được hỗ trợ ổn định. Hãy lưu thành DOCX trước khi chuyển.');
- }
+// NÚT TẢI KẾT QUẢ
+$('download').onclick=()=>{
 
- if(!window.mammoth) {
-  throw new Error('Không tải được thư viện đọc DOCX.');
- }
+ if(!blob)return;
 
- const result=await mammoth.convertToHtml({
-  arrayBuffer:await selectedFile.arrayBuffer()
- });
+ let u=URL.createObjectURL(blob);
+ let a=document.createElement('a');
 
- const safeHtml=result.value;
-
- const win=window.open('','_blank');
-
- if(!win) {
-  throw new Error('Trình duyệt đã chặn cửa sổ mới. Hãy cho phép pop-up rồi thử lại.');
- }
-
- win.document.write(`
- <!doctype html>
- <html>
- <head>
- <meta charset="utf-8">
- <title>Bản in tài liệu</title>
- <style>
- body{
-  font-family:"Times New Roman",serif;
-  font-size:12pt;
-  line-height:1.5;
-  max-width:850px;
-  margin:40px auto;
-  padding:0 24px
- }
- img{max-width:100%}
- @media print{body{margin:15mm auto}}
- </style>
- </head>
- <body>
- ${safeHtml}
- <script>
- window.onload=()=>setTimeout(()=>window.print(),300)
- <\/script>
- </body>
- </html>
- `);
-
- win.document.close();
-
- setStatus(
-  'Đã mở bản xem trước. Chọn “Lưu dưới dạng PDF” trong hộp thoại in.',
-  'success'
- );
-}
-
-function finish(msg) {
- setProgress(100);
- setStatus(msg+' Bấm nút tải xuống để lưu tệp.','success');
- downloadBtn.style.display='inline-block';
-}
-
-/* TẢI FILE */
-
-downloadBtn.addEventListener('click',()=>{
-
- if(!generatedBlob)return;
-
- const url=URL.createObjectURL(generatedBlob);
-
- const a=document.createElement('a');
- a.href=url;
- a.download=outputFileName;
+ a.href=u;
+ a.download=outName;
 
  document.body.appendChild(a);
  a.click();
  a.remove();
 
- setTimeout(()=>URL.revokeObjectURL(url),1500);
-});
+ setTimeout(()=>URL.revokeObjectURL(u),2000);
+};
 
-switchMode('pdf-to-ppt');
+switchMode('ppt');
 
 </script>
 </body>
