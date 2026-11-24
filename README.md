@@ -98,7 +98,7 @@ pdf-sang-word-ppt/
 ├─ auto-start.bat         # tự chạy website + link công khai khi đăng nhập Windows
 ├─ auto-stop.bat          # tắt website và link công khai
 ├─ setup-autostart.ps1    # tạo tác vụ Windows (được auto-start.bat gọi)
-├─ tunnel-service.ps1     # giữ tunnel chạy, cập nhật current-link.txt
+├─ tunnel_service.py      # giữ tunnel chạy ngầm, cập nhật current-link.txt
 ├─ requirements.txt
 ├─ start.bat / start.ps1
 └─ README.md

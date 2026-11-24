@@ -16,7 +16,7 @@ share-online.bat
 auto-start.bat
 auto-stop.bat
 setup-autostart.ps1
-tunnel-service.ps1
+tunnel_service.py
 current-link.txt
 logs/
 .env.example

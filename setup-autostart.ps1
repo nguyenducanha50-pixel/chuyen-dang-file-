@@ -1,12 +1,13 @@
 # Tao 2 tac vu Windows tu khoi dong cung may:
 #   - PDF2Office Server : chay Flask khi dang nhap
 #   - PDF2Office Tunnel : tao link cong khai va cap nhat current-link.txt
+# Ca hai chay bang pythonw.exe nen khong hien cua so console.
 # Chay lai file nay bat cu luc nao de bat lai sau khi auto-stop.
 
 $ErrorActionPreference = "Stop"
 $ProjectDir = $PSScriptRoot
 $Pythonw = Join-Path $ProjectDir ".venv\Scripts\pythonw.exe"
-$TunnelScript = Join-Path $ProjectDir "tunnel-service.ps1"
+$TunnelScript = Join-Path $ProjectDir "tunnel_service.py"
 $LinkFile = Join-Path $ProjectDir "current-link.txt"
 $User = "$env:USERDOMAIN\$env:USERNAME"
 
@@ -14,7 +15,7 @@ if (-not (Test-Path $Pythonw)) {
     throw "Chua co .venv. Hay chay start.bat mot lan truoc."
 }
 if (-not (Test-Path $TunnelScript)) {
-    throw "Khong tim thay tunnel-service.ps1."
+    throw "Khong tim thay tunnel_service.py."
 }
 
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $User
@@ -36,9 +37,7 @@ $serverAction = New-ScheduledTaskAction -Execute $Pythonw -Argument "app.py" -Wo
 Register-ScheduledTask -TaskName "PDF2Office Server" -Action $serverAction -Trigger $trigger `
     -Principal $principal -Settings $settings -Force | Out-Null
 
-$powershell = (Get-Command powershell.exe).Source
-$tunnelArgs = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$TunnelScript`""
-$tunnelAction = New-ScheduledTaskAction -Execute $powershell -Argument $tunnelArgs -WorkingDirectory $ProjectDir
+$tunnelAction = New-ScheduledTaskAction -Execute $Pythonw -Argument "tunnel_service.py" -WorkingDirectory $ProjectDir
 Register-ScheduledTask -TaskName "PDF2Office Tunnel" -Action $tunnelAction -Trigger $trigger `
     -Principal $principal -Settings $settings -Force | Out-Null
 
