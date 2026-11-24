@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: pdf2office
+    runtime: docker
+    plan: standard
+    region: singapore
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: HOST
+        value: 0.0.0.0

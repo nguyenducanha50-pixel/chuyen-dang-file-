@@ -1,0 +1,35 @@
+# Caddy tự động xin và gia hạn chứng chỉ HTTPS cho tên miền trong biến DOMAIN.
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# Giới hạn dung lượng tải lên (khớp với Flask: 60 MB + dư địa).
+	request_body {
+		max_size 65MB
+	}
+
+	# Thêm lớp bảo vệ nếu bạn muốn website riêng tư.
+	# Tạo hash bằng: docker compose exec caddy caddy hash-password
+	# basic_auth {
+	# 	pdf $2a$14$THAY_BANG_HASH_O_DAY
+	# }
+
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy no-referrer
+		-Server
+	}
+
+	reverse_proxy app:5000 {
+		transport http {
+			dial_timeout 10s
+			response_header_timeout 15m
+			read_timeout 15m
+			write_timeout 15m
+		}
+	}
+}

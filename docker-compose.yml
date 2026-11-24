@@ -1,0 +1,48 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    expose:
+      - "5000"
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      MAX_FILE_MB: ${MAX_FILE_MB:-60}
+      MAX_PAGES: ${MAX_PAGES:-300}
+      RENDER_DPI: ${RENDER_DPI:-200}
+      CONVERT_SLOTS: ${CONVERT_SLOTS:-2}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/api/health', timeout=3)",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 25s
+    security_opt:
+      - no-new-privileges:true
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@example.com}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:

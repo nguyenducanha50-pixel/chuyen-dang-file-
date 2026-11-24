@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+logs/
+current-link.txt
+tests/_sample.pdf
+tests/_out.docx
+tests/_debug*.py
+tests/*.docx
+tests/*.pptx
+.DS_Store
+Thumbs.db
