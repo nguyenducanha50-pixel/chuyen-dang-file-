@@ -1,5 +1,7 @@
 # PDF2Office — Chuyển PDF sang Word & PowerPoint
 
+[![CI](https://github.com/nguyenducanha50-pixel/chuyen-dang-file-/actions/workflows/ci.yml/badge.svg)](https://github.com/nguyenducanha50-pixel/chuyen-dang-file-/actions/workflows/ci.yml)
+
 Website nội bộ (chạy trên máy của bạn) giúp chuyển **PDF → Word (.docx)** và **PDF → PowerPoint (.pptx)** với giao diện tiếng Việt hiện đại, hỗ trợ kéo–thả nhiều tệp cùng lúc.
 
 - **PDF → Word**: dựng lại đoạn văn, tiêu đề, bảng biểu, hình ảnh và căn lề bằng [`pdf2docx`](https://github.com/ArtifexSoftware/pdf2docx) (PyMuPDF), có cơ chế dự phòng riêng.
