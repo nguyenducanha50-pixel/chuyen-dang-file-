@@ -108,7 +108,7 @@ def publish(url: str) -> None:
     log(f"Link moi: {url}")
 
 
-def start_tunnel() -> tuple[subprocess.Popen, str | None]:
+def start_tunnel() -> tuple[subprocess.Popen, str | None, dict[str, int | str | None]]:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     try:
         LOG_FILE.write_text("", encoding="utf-8")
@@ -132,8 +132,7 @@ def start_tunnel() -> tuple[subprocess.Popen, str | None]:
         errors="replace",
         creationflags=CREATE_NO_WINDOW,
     )
-    found = threading.Event()
-    box: dict[str, str] = {}
+    state: dict[str, int | str | None] = {"url": None, "errors": 0}
 
     def pump() -> None:
         with open(LOG_FILE, "a", encoding="utf-8", errors="replace") as fh:
@@ -141,15 +140,28 @@ def start_tunnel() -> tuple[subprocess.Popen, str | None]:
             for line in proc.stdout:
                 fh.write(line)
                 fh.flush()
-                if "url" not in box:
+                if "Registered tunnel connection" in line:
+                    state["errors"] = 0
+                elif "Tunnel not found" in line or "Unauthorized" in line:
+                    state["errors"] = int(state["errors"] or 0) + 1
+                if not state["url"]:
                     match = URL_RE.search(line)
                     if match:
-                        box["url"] = match.group(0)
-                        found.set()
+                        state["url"] = match.group(0)
 
     threading.Thread(target=pump, daemon=True).start()
-    found.wait(180)
-    return proc, box.get("url")
+
+    # Chờ link tối đa 180 giây. Nếu cloudflared vẫn chạy nhưng không có link
+    # (hoặc link cũ đã bị thu hồi) thì tắt để vòng lặp tạo tunnel mới.
+    deadline = time.time() + 180
+    while time.time() < deadline and proc.poll() is None and not state["url"]:
+        time.sleep(1)
+
+    if not state["url"] and proc.poll() is None:
+        log("Khong lay duoc link sau 180 giay, khoi dong lai tunnel.")
+        proc.terminate()
+
+    return proc, state["url"] if isinstance(state["url"], str) else None, state
 
 
 def main() -> None:
@@ -161,10 +173,23 @@ def main() -> None:
         return
 
     while True:
-        proc, url = start_tunnel()
+        proc, url, state = start_tunnel()
         if url:
             publish(url)
-        proc.wait()
+
+        # Cloudflare có thể thu hồi quick tunnel (lỗi "Tunnel not found").
+        # Khi đó phải tạo tunnel mới để có link mới.
+        while proc.poll() is None:
+            time.sleep(10)
+            if int(state["errors"] or 0) >= 3:
+                log("Cloudflare thu hoi tunnel, dang tao link moi...")
+                proc.terminate()
+                break
+
+        try:
+            proc.wait(timeout=10)
+        except Exception:
+            proc.kill()
         time.sleep(5)
 
 

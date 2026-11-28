@@ -25,7 +25,7 @@ $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoi
 
 # Don sach phien cu de lan chay nay chac chan tao link moi.
 Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-Get-CimInstance Win32_Process | Where-Object { $_.Name -like 'python*' -and $_.CommandLine -like '*app.py*' } |
+Get-CimInstance Win32_Process | Where-Object { $_.Name -like 'python*' -and ($_.CommandLine -like '*app.py*' -or $_.CommandLine -like '*tunnel_service.py*') } |
     ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
 foreach ($name in @("PDF2Office Server", "PDF2Office Tunnel")) {
     $task = Get-ScheduledTask -TaskName $name -ErrorAction SilentlyContinue
